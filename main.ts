@@ -2,7 +2,7 @@ import { Application, Router } from "https://deno.land/x/oak@v9.0.0/mod.ts";
 
 const app = new Application();
 
-const router = new Router();
+const router = new Router({prefix: '/api/v1'});
 
 router
   .get("/", (ctx) => {
