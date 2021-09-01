@@ -5,5 +5,4 @@ const app = new Application();
 
 new testController('/api/v1', app).init();
 
-// @ts-ignore
-await app.listen({port: 8000});
+await app.listen({port:8000})

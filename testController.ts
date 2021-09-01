@@ -1,8 +1,8 @@
-import {Controller, routeMethod} from "./Controller.ts";
+import {Controller} from "./app/Controller.ts";
 
 export class testController extends Controller {
 
-    protected routesMethods: Array<routeMethod> = [
+    protected routesMethods: Array<RouteMethod> = [
         {path: "/", method: this.test, type: "get"}
     ]
 

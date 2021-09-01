@@ -1,18 +1,12 @@
 import { Application, Router } from "https://deno.land/x/oak@v9.0.0/mod.ts";
-import {routeMethod} from "./interfaces.ts";
-
-interface routeMethod {
-    path: string,
-    method: (ctx: any) => void,
-    type: "delete"|"get"|"head"|"options"|"patch"|"post"|"put"
-}
+import {RouteMethod} from "./RouteMethode.ts";
 
 abstract class Controller {
 
     private router: Router;
     private app: Application;
 
-    protected routesMethods: Array<routeMethod> = [];
+    protected routesMethods: Array<RouteMethod> = [];
 
     constructor(apiPrefix: string, app: Application) {
         this.app = app;
@@ -36,4 +30,4 @@ abstract class Controller {
 
 }
 
-export {routeMethod, Controller}
+export {Controller}
