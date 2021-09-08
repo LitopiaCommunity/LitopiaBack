@@ -28,7 +28,7 @@ enum Mob{
     STRAY
     EGG
     LEASH_HITCH
-    PAIntING
+    PAINTING
     ARROW
     SNOWBALL
     FIREBALL
@@ -501,8 +501,8 @@ enum Item{
     FIRE_CORAL_WALL_FAN
     FISHING_ROD
     FLETCHING_TABLE
-    FLInt
-    FLInt_AND_STEEL
+    FLINT
+    FLINT_AND_STEEL
     FLOWER_BANNER_PATTERN
     FLOWER_POT
     FOX_SPAWN_EGG
@@ -816,7 +816,7 @@ enum Item{
     ORANGE_WOOL
     OXEYE_DAISY
     PACKED_ICE
-    PAIntING
+    PAINTING
     PANDA_SPAWN_EGG
     PAPER
     PARROT_SPAWN_EGG
@@ -1269,7 +1269,7 @@ enum Item{
     WAXED_OXIDIZED_CUT_COPPER_SLAB
     AZALEA_LEAVES
     FLOWERING_AZALEA_LEAVES
-    TIntED_GLASS
+    TINTED_GLASS
     AZALEA
     FLOWERING_AZALEA
     SPORE_BLOSSOM
@@ -1338,7 +1338,7 @@ enum Item{
     MEDIUM_AMETHYST_BUD
     LARGE_AMETHYST_BUD
     AMETHYST_CLUSTER
-    POIntED_DRIPSTONE
+    POINTED_DRIPSTONE
     WATER_CAULDRON
     LAVA_CAULDRON
     POWDER_SNOW_CAULDRON
@@ -1381,31 +1381,31 @@ model User {
     candidature String?
     candidatureDate DateTime?
     candidatureValidationDate DateTime?
-    playTime Int @default(0)
-    timeSinceLastDeath Int @default(0)
-    numberDeath Int @default(0)
-    numberJump Int @default(0)
-    totalMobKill Int @default(0)
-    totalPlayerKill Int @default(0)
+    playTime BigInt @default(0)
+    timeSinceLastDeath BigInt @default(0)
+    numberDeath BigInt @default(0)
+    numberJump BigInt @default(0)
+    totalMobKill BigInt @default(0)
+    totalPlayerKill BigInt @default(0)
     totalParcourDistance Decimal @db.Decimal(10, 3) @default(0)
-    playTimeTick Int @default(0)
-    timeSinceLastDeathTick Int @default(0)
+    playTimeTick BigInt @default(0)
+    timeSinceLastDeathTick BigInt @default(0)
     totalParcourDistanceTransportation Decimal @db.Decimal(10, 3) @default(0)
-    totalAdvancement Int @default(0)
+    totalAdvancement BigInt @default(0)
     damageTaken Float @db.Real @default(0)
     damageDealt Float @db.Real @default(0)
     damageBlockedByShield Float @db.Real @default(0)
-    raidWon Int @default(0)
-    tradedWithVillager Int @default(0)
-    animalBred Int @default(0)
-    fishCaught Int @default(0)
-    totalMineStat Int @default(0)
-    totalCraftStat Int @default(0)
-    totalUseStat Int @default(0)
-    totalKillEntity Int @default(0)
-    totalEntityKilledBy Int @default(0)
-    totalAchivementGet Int @default(0)
-    totalScore Int @default(0)
+    raidWon BigInt @default(0)
+    tradedWithVillager BigInt @default(0)
+    animalBred BigInt @default(0)
+    fishCaught BigInt @default(0)
+    totalMineStat BigInt @default(0)
+    totalCraftStat BigInt @default(0)
+    totalUseStat BigInt @default(0)
+    totalKillEntity BigInt @default(0)
+    totalEntityKilledBy BigInt @default(0)
+    totalAchivementGet BigInt @default(0)
+    totalScore BigInt @default(0)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -1416,10 +1416,10 @@ model ItemStats {
     discordId String @db.Char(18)
     minecraftId  String @db.Char(32)
     item Item
-    numbercraft Int @default(0)
-    numberused Int @default(0)
-    numbermine Int @default(0)
-    numberbroken Int @default(0)
+    numbercraft BigInt @default(0)
+    numberused BigInt @default(0)
+    numbermine BigInt @default(0)
+    numberbroken BigInt @default(0)
 
     user User @relation(fields: [discordId, minecraftId], references: [discordId, minecraftId])
     @@id([discordId, minecraftId, item])
@@ -1430,8 +1430,8 @@ model MobStats {
     minecraftId String @db.Char(32)
     mob Mob
 
-    killed Int @default(0)
-    killedBy Int @default(0)
+    killed BigInt @default(0)
+    killedBy BigInt @default(0)
     user User @relation(fields: [discordId, minecraftId], references: [discordId, minecraftId])
     @@id([discordId, minecraftId, mob])
 }
@@ -1439,21 +1439,21 @@ model MobStats {
 model AchievementsByUser{
     discordId String @db.Char(18)
     minecraftId String @db.Char(32)
-    achievementId Int
+    achievementId BigInt
     achievement Achievement @relation(fields: [achievementId], references: [id])
     user User @relation(fields: [discordId, minecraftId], references: [discordId, minecraftId])
     @@id([discordId, minecraftId, achievementId])
 }
 
 model Achievement {
-    id Int @id
+    id BigInt @id
     usersAchievements AchievementsByUser[]
     title String
     description String
 }
 
 model Post {
-    id Int @default(autoincrement()) @id
+    id BigInt @default(autoincrement()) @id
     discordId String @db.Char(18)
     minecraftId  String @db.Char(32)
     title String

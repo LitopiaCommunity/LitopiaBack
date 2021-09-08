@@ -20,7 +20,10 @@ export class UserController {
   }
 
   @Get('user/:idDiscord/:idMinecraft')
-  async getUser(@Param('idDiscord') idDiscord: string, @Param('idMinecraft')  idMinecraft: string): Promise<any> {
+  async getUser(
+    @Param('idDiscord') idDiscord: string,
+    @Param('idMinecraft') idMinecraft: string,
+  ): Promise<any> {
     return this.userService.user({
       discordId_minecraftId: { discordId: idDiscord, minecraftId: idMinecraft },
     });
