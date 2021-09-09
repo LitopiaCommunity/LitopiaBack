@@ -1,14 +1,7 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Body,
-  Put,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Header } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
+import { toJson } from '../globalFunction';
 
 @Controller()
 export class UserController {
@@ -20,12 +13,18 @@ export class UserController {
   }
 
   @Get('user/:idDiscord/:idMinecraft')
+  @Header('Content-Type', 'application/json')
   async getUser(
     @Param('idDiscord') idDiscord: string,
     @Param('idMinecraft') idMinecraft: string,
   ): Promise<any> {
-    return this.userService.user({
-      discordId_minecraftId: { discordId: idDiscord, minecraftId: idMinecraft },
-    });
+    return toJson(
+      await this.userService.user({
+        discordId_minecraftId: {
+          discordId: idDiscord,
+          minecraftId: idMinecraft,
+        },
+      }),
+    );
   }
 }
