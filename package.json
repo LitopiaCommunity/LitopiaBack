@@ -25,6 +25,7 @@
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/swagger": "^6.1.0",
     "@nestjs/typeorm": "^9.0.1",
     "pg": "^8.8.0",
     "postgres": "^3.2.4",
