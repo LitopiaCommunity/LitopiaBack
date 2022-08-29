@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { ApiProperty } from "@nestjs/swagger";
 
 export enum UserRole {
   GHOST = "ghost",
@@ -14,6 +15,9 @@ export enum UserRole {
 
 @Entity()
 export class User {
+  @ApiProperty({
+    required:true
+  })
   @PrimaryColumn({
     type: "char",
     length: 18,
@@ -22,6 +26,9 @@ export class User {
   })
   discordID: string;
 
+  @ApiProperty({
+    required:true
+  })
   @PrimaryColumn({
     type: "uuid",
     unique: true,
@@ -29,18 +36,29 @@ export class User {
   })
   minecraftUUID: string;
 
+  @ApiProperty({
+    required:true
+  })
   @Column({
     length: 32,
     nullable: false
   })
   discordNickname: string;
 
+  @ApiProperty({
+    required:true
+  })
   @Column({
     length: 16,
     nullable: false
   })
   minecraftNickname: string;
 
+  @ApiProperty({
+    enum:UserRole,
+    default:UserRole.GHOST,
+    required:true
+  })
   @Column({
     type: "enum",
     enum: UserRole,
@@ -49,12 +67,17 @@ export class User {
   })
   role: UserRole;
 
+  @ApiProperty({
+    maxLength:4096
+  })
   @Column({length:4096,nullable:true})
   candidature: string;
 
+  @ApiProperty()
   @Column({nullable:true})
   candidatureProposalAt:Date;
 
+  @ApiProperty()
   @Column({nullable:true})
   candidatureAcceptedAt:Date;
 
