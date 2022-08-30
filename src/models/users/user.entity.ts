@@ -26,13 +26,9 @@ export class User {
   })
   discordID: string;
 
-  @ApiProperty({
-    required:true
-  })
-  @PrimaryColumn({
-    type: "uuid",
-    unique: true,
-    nullable: false
+  @ApiProperty()
+  @Column({
+    nullable: true
   })
   minecraftUUID: string;
 
@@ -41,16 +37,20 @@ export class User {
   })
   @Column({
     length: 32,
-    nullable: false
+    nullable:false,
   })
   discordNickname: string;
 
-  @ApiProperty({
-    required:true
+  @ApiProperty()
+  @Column( {
+    nullable:true,
   })
+  discordAvatar: string;
+
+  @ApiProperty()
   @Column({
     length: 16,
-    nullable: false
+    nullable: true
   })
   minecraftNickname: string;
 

@@ -1,0 +1,46 @@
+import { Injectable, Logger } from "@nestjs/common";
+import { AuthenticationTypes, UserDetails } from "../utils/authentication.types";
+import { User } from "../../models/users/user.entity";
+import { UsersService } from "../../models/users/users.service";
+
+@Injectable()
+export class AuthService implements AuthenticationTypes{
+  private readonly logger = new Logger(AuthService.name);
+
+  constructor(private usersService:UsersService) {
+  }
+  createUser(details: UserDetails) {
+    this.logger.log("Auth will create "+details.username)
+    this.usersService.create({
+      discordID:details.discordId,
+      discordNickname:details.username,
+      discordAvatar:details.avatar,
+    })
+  }
+
+  newUser(user: User, details: UserDetails) {
+    return  {
+      ...user,
+      discordID: details.discordId,
+      discordNickname: details.username,
+      discordAvatar: details.avatar,
+    }
+  }
+
+  findUser(discordId: string): Promise<User | undefined> {
+    return Promise.resolve(this.usersService.findOne(discordId))
+  }
+
+  async validateUser(details: UserDetails) {
+    this.logger.log("Auth will validate "+details.username)
+    const { discordId } = details;
+    const user = await this.usersService.findOne( discordId );
+    if (user){
+      this.logger.log(details.username+" alredy existe in database so we update it")
+      const newUser = this.newUser(user,details)
+      await this.usersService.update(discordId,newUser)
+      return newUser
+    }
+    return this.createUser(details);
+  }
+}
