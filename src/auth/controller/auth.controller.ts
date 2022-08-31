@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from "@nestjs/common";
+import { Controller, Get, HttpException, HttpStatus, Req, Res, UseGuards } from "@nestjs/common";
 import { Request, Response } from 'express';
 import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { DiscordAuthGuard } from "../guards/discord-auth.guard";
@@ -29,11 +29,16 @@ export class AuthController {
   @Get('redirect')
   @ApiOperation({
     summary: 'This is the redirect URL the OAuth2 Provider will call. ' +
-      'It need to be open in browser (not fetch) cause it will redirect the last opened page.'
+      'It need to be open in browser (not fetch) and it will automatically close window.'
   })
   @UseGuards(DiscordAuthGuard)
   redirect(@Res() res: Response) {
-    res.status(200).send('Login successful')
+    res.status(200).send(`
+      <script>
+        setTimeout(function() {
+            window.close()
+        }, 100);
+      </script>`)
   }
 
   /**
@@ -64,13 +69,14 @@ export class AuthController {
     if (req.session) {
       req.session.destroy(err => {
         if (err) {
-          res.status(400).send('Unable to log out')
+          throw new HttpException('Unable to log out', HttpStatus.BAD_REQUEST);
         } else {
-          res.status(200).send('Logout successful')
+          res.status(200).send({statusCode:200,message:'Logout successful'})
         }
       });
     } else {
       res.end()
+      res.status(200).send({statusCode:200,message:'No sessions'})
     }
   }
 }
