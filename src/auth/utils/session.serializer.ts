@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { PassportSerializer } from "@nestjs/passport";
 import { AuthenticationTypes, Done, UserKeyStore } from "./authentication.types";
-import { User } from "../../models/users/user.entity";
+import { UserEntity } from "../../models/users/user.entity";
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
@@ -13,7 +13,7 @@ export class SessionSerializer extends PassportSerializer {
     super();
   }
 
-  serializeUser(user: User, done: Done) {
+  serializeUser(user: UserEntity, done: Done) {
     this.logger.log("Serialise "+user.discordID)
     done(null, { discordID:user.discordID });
   }

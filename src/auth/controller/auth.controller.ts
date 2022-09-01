@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { DiscordAuthGuard } from "../guards/discord-auth.guard";
 import { AuthenticatedGuard } from "../guards/authenticated.guard";
-import { User } from "../../models/users/user.entity";
+import { UserEntity } from "../../models/users/user.entity";
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -48,11 +48,11 @@ export class AuthController {
   @Get('status')
   @ApiCookieAuth()
   @ApiOperation({summary: 'Retrieve the authentified user.'})
-  @ApiResponse({ status: 200, description: 'Get auth guard',type:User})
+  @ApiResponse({ status: 200, description: 'Get auth guard',type:UserEntity})
   @ApiResponse({ status: 403, description: 'Forbidden cause you are not connected'})
   @UseGuards(AuthenticatedGuard)
-  status(@Req() req: Request):User {
-    return <User>req.user;
+  status(@Req() req: Request):UserEntity {
+    return <UserEntity>req.user;
   }
 
   /**

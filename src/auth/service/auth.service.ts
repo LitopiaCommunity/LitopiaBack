@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { AuthenticationTypes, UserDetails } from "../utils/authentication.types";
-import { User } from "../../models/users/user.entity";
+import { UserEntity } from "../../models/users/user.entity";
 import { UsersService } from "../../models/users/users.service";
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AuthService implements AuthenticationTypes{
     })
   }
 
-  newUser(user: User, details: UserDetails) {
+  newUser(user: UserEntity, details: UserDetails) {
     return  {
       ...user,
       discordID: details.discordId,
@@ -27,7 +27,7 @@ export class AuthService implements AuthenticationTypes{
     }
   }
 
-  findUser(discordId: string): Promise<User | undefined> {
+  findUser(discordId: string): Promise<UserEntity | undefined> {
     return Promise.resolve(this.usersService.findOne(discordId))
   }
 

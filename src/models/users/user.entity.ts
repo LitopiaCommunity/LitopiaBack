@@ -14,7 +14,7 @@ export enum UserRole {
 }
 
 @Entity()
-export class User {
+export class UserEntity {
   @ApiProperty({
     required:true
   })
