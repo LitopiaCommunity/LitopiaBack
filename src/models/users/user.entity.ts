@@ -4,7 +4,7 @@ import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
 
 export enum UserRole {
   GHOST = "ghost",
-  CANDIDATE = "CANDIDATE",
+  CANDIDATE = "candidate",
   BAN="ban",
   REFUSED = "refuse",
   LITOPIEN = "litopien",
@@ -65,7 +65,8 @@ export class UserEntity {
   role: UserRole;
 
   @ApiProperty({
-    maxLength:4096
+    minLength: 1024,
+    maxLength: 4096
   })
   @Column({length:4096,nullable:true})
   candidature: string;

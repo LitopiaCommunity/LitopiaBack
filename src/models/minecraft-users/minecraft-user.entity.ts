@@ -8,6 +8,8 @@ export class MinecraftUserEntity {
   @IsUUID()
   @ApiProperty({
     required: true,
+    type:'string',
+    format: 'uuid'
   })
   @PrimaryColumn({
     type:"uuid",

@@ -9,6 +9,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UsersModule } from "./models/users/users.module";
 import { AuthModule } from './auth/auth.module';
 import { MinecraftUsersModule } from "./models/minecraft-users/minecraft-users.module";
+import { CandidatureProcessModule } from "./models/candidature-process/candidature-process.module";
+import { MinecraftApiModule } from "./api/minecraft-api/minecraft-api.module";
 
 @Module({
   imports: [
@@ -30,8 +32,10 @@ import { MinecraftUsersModule } from "./models/minecraft-users/minecraft-users.m
       }),
       inject: [ConfigService],
     }),
+    CandidatureProcessModule,
     UsersModule,
     MinecraftUsersModule,
+    MinecraftApiModule,
     AuthModule,
     SessionsModule
   ],

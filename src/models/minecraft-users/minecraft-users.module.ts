@@ -7,6 +7,7 @@ import { MinecraftUserEntity } from "./minecraft-user.entity";
 @Module({
   imports:[TypeOrmModule.forFeature([MinecraftUserEntity])],
   providers: [MinecraftUsersService],
-  controllers: [MinecraftUsersController]
+  controllers: [MinecraftUsersController],
+  exports:[MinecraftUsersService]
 })
 export class MinecraftUsersModule {}

@@ -16,7 +16,9 @@ export class UsersService {
   }
 
   findAll(): Promise<UserEntity[]> {
-    return this.usersRepository.find();
+    return this.usersRepository.find({
+      relations:['minecraftUser']
+    });
   }
 
   findOne(discordID: string): Promise<UserEntity> {
