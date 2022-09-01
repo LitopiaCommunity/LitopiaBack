@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
+import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
 
 export enum UserRole {
   GHOST = "ghost",
@@ -26,11 +27,14 @@ export class UserEntity {
   })
   discordID: string;
 
-  @ApiProperty()
-  @Column({
-    nullable: true
+  @ApiProperty({
+    type:MinecraftUserEntity,
+    required:false,
+    nullable:true
   })
-  minecraftUUID: string;
+  @OneToOne(() => MinecraftUserEntity)
+  @JoinColumn()
+  minecraftUser:MinecraftUserEntity;
 
   @ApiProperty({
     required:true
@@ -46,13 +50,6 @@ export class UserEntity {
     nullable:true,
   })
   discordAvatar: string;
-
-  @ApiProperty()
-  @Column({
-    length: 16,
-    nullable: true
-  })
-  minecraftNickname: string;
 
   @ApiProperty({
     enum:UserRole,
