@@ -7,11 +7,17 @@ import { MinecraftUsersService } from "../minecraft-users/minecraft-users.servic
 import { UsersService } from "../users/users.service";
 import { DeepPartial } from "typeorm";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
+import { BotUtilityService } from "../../bot/functions/bot-utility.service";
 
 @Injectable()
 export class CandidatureProcessService {
 
-  constructor(private mcAPIService:MinecraftApiService,private mcUserService:MinecraftUsersService, private userService:UsersService) {
+  constructor(
+    private mcAPIService:MinecraftApiService,
+    private mcUserService:MinecraftUsersService,
+    private userService:UsersService,
+    private botUtilityService:BotUtilityService,
+  ) {
   }
 
   /**
@@ -60,7 +66,18 @@ export class CandidatureProcessService {
       minecraftUser:newMcUser,
     }
 
+    await this.sendMessageToUser(newUser.discordID);
+
     return this.userService.create(newUser);
   }
 
+  /**
+   * Send a message to the user to inform him that his candidature is accepted
+   * @param discordID The discord id of the user
+   */
+  async sendMessageToUser(discordID:string){
+    await this.botUtilityService.sendPrivateMessage(discordID,'**⏳ Ta candidature a bien était poster sur notre discord #candidatures.**' +
+      'Il ne te reste plus qu\'a attendre les votes des litopien\n' +
+      'Tu sera prochainement recontacter par l\'un de nos modérateur.');
+  }
 }
