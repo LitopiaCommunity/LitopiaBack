@@ -1,14 +1,16 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";import { PassportModule } from "@nestjs/passport";
+import { SessionsModule } from "./models/sessions/sessions.module";
+import * as session from 'express-session';
+import * as passport from 'passport';
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UsersModule } from "./models/users/users.module";
 import { AuthModule } from './auth/auth.module';
-import { PassportModule } from "@nestjs/passport";
-import { SessionsModule } from "./models/sessions/sessions.module";
-import * as session from 'express-session';
-import * as passport from 'passport';
+import { MinecraftUsersModule } from "./models/minecraft-users/minecraft-users.module";
+import { CandidatureProcessModule } from "./models/candidature-process/candidature-process.module";
+import { MinecraftApiModule } from "./api/minecraft-api/minecraft-api.module";
 
 @Module({
   imports: [
@@ -30,7 +32,10 @@ import * as passport from 'passport';
       }),
       inject: [ConfigService],
     }),
+    CandidatureProcessModule,
     UsersModule,
+    MinecraftUsersModule,
+    MinecraftApiModule,
     AuthModule,
     SessionsModule
   ],

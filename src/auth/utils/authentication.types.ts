@@ -1,4 +1,4 @@
-import { User } from "../../models/users/user.entity";
+import { UserEntity } from "../../models/users/user.entity";
 
 export type UserDetails = {
   username: string;
@@ -12,11 +12,11 @@ export type UserDetails = {
 export interface AuthenticationTypes {
   validateUser(details: UserDetails);
   createUser(details: UserDetails);
-  findUser(discordId: string): Promise<User | undefined>;
+  findUser(discordId: string): Promise<UserEntity | undefined>;
 }
 
 export interface UserKeyStore {
   discordID:string
 }
 
-export type Done = (err: Error, user: UserKeyStore | User) => void;
+export type Done = (err: Error, user: UserKeyStore | UserEntity) => void;
