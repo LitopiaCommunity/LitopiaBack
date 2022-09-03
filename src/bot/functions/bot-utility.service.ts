@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectDiscordClient } from "@discord-nestjs/core";
-import { Client } from "discord.js";
+import { APIEmbed, Client, TextChannel } from "discord.js";
 
 @Injectable()
 export class BotUtilityService{
@@ -18,6 +18,26 @@ export class BotUtilityService{
         this.logger.error(e)
         this.logger.error(`Error sending private message to ${user.tag}`);
       }
+    }
+  }
+
+  async sendMessageToChannel(channelId: string, payload: APIEmbed | string) {
+    const channel = await this.client.channels.fetch(channelId);
+    if (channel.isTextBased()) {
+      const textChannel = channel as TextChannel;
+      this.logger.log(`Sending embed message to ${textChannel.name}`);
+      try {
+        if (typeof payload === 'string') {
+          await textChannel.send(payload);
+        }else {
+          return await textChannel.send({ embeds: [payload] });
+        }
+      }catch (e) {
+        this.logger.error(e)
+        this.logger.error(`Error sending embed message to ${channelId}`);
+      }
+    }else{
+      this.logger.error(`Channel ${channelId} is not text based`);
     }
   }
 }

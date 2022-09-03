@@ -8,17 +8,20 @@ import { UsersService } from "../users/users.service";
 import { DeepPartial } from "typeorm";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
 import { BotUtilityService } from "../../bot/functions/bot-utility.service";
+import { APIEmbed, InteractionWebhook, MessagePayload, MessageTarget } from "discord.js";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class CandidatureProcessService {
+  private DISCORD_CANDIDATURE_CHANNEL_ID = this.configService.get<string>('DISCORD_CANDIDATURE_CHANNEL_ID');
 
   constructor(
     private mcAPIService:MinecraftApiService,
     private mcUserService:MinecraftUsersService,
     private userService:UsersService,
     private botUtilityService:BotUtilityService,
-  ) {
-  }
+    private configService:ConfigService
+  ){}
 
   /**
    * Create a candidature for a user
@@ -68,6 +71,8 @@ export class CandidatureProcessService {
 
     await this.sendMessageToUser(newUser.discordID);
 
+    await this.sendCandidatureToChannel(newUser);
+
     return this.userService.create(newUser);
   }
 
@@ -80,4 +85,35 @@ export class CandidatureProcessService {
       'Il ne te reste plus qu\'a attendre les votes des litopien\n' +
       'Tu sera prochainement recontacter par l\'un de nos modérateur.');
   }
+
+  /**
+   * Send candidature to discord channel add reaction and listen to reaction for vote
+   */
+  async sendCandidatureToChannel(user: DeepPartial<UserEntity>){
+    const embed = await this.createEmbed(user);
+    const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID,embed);
+    if (message) {
+      await message.react('👍');
+      await message.react('👎');
+      await message.react('🤷');
+      await message.react('🚫');
+    }
+  }
+
+  /**
+   * Create an embed for candidature
+   */
+  async createEmbed(user: DeepPartial<UserEntity>){
+    const embed : APIEmbed = {
+        title: `Candidature de ${user.minecraftUser.minecraftNickname}`,
+        description: user.candidature,
+        color: 0x00ff00,
+        footer: {
+          text: `Candidature de ${user.minecraftUser.minecraftNickname}`,
+          icon_url: `https://crafatar.com/avatars/${user.minecraftUser.minecraftUUID}?overlay`,
+        },
+      }
+    return embed;
+  }
+
 }
