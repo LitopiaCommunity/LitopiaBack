@@ -1,6 +1,16 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn
+} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
+import { UserVotesEntity } from "../users-votes/user-votes.entity";
 
 export enum UserRole {
   GHOST = "ghost",
@@ -35,6 +45,19 @@ export class UserEntity {
   @OneToOne(() => MinecraftUserEntity)
   @JoinColumn()
   minecraftUser:MinecraftUserEntity;
+
+  /**
+   * The votes of users to this user
+   */
+  @OneToMany(() => UserVotesEntity, userVotes => userVotes.votedFor)
+  votes: UserVotesEntity[];
+
+  /**
+   * The votes of this user to other users
+   */
+  @OneToMany(() => UserVotesEntity, userVotes => userVotes.voter)
+  votedFor: UserVotesEntity[];
+
 
   @ApiProperty({
     required:true
