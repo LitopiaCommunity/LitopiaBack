@@ -11,6 +11,9 @@ import { AuthModule } from './auth/auth.module';
 import { MinecraftUsersModule } from "./models/minecraft-users/minecraft-users.module";
 import { CandidatureProcessModule } from "./models/candidature-process/candidature-process.module";
 import { MinecraftApiModule } from "./api/minecraft-api/minecraft-api.module";
+import { DiscordModule } from "@discord-nestjs/core";
+import { GatewayIntentBits } from 'discord.js';
+import { BotModule } from "./bot/bot.module";
 
 @Module({
   imports: [
@@ -32,6 +35,22 @@ import { MinecraftApiModule } from "./api/minecraft-api/minecraft-api.module";
       }),
       inject: [ConfigService],
     }),
+    DiscordModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        token: configService.get<string>('DISCORD_CLIENT_TOKEN'),
+        discordClientOptions: {
+          intents:[
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.DirectMessages,
+            GatewayIntentBits.MessageContent,
+          ]
+        }
+      })
+    }),
+    BotModule,
     CandidatureProcessModule,
     UsersModule,
     MinecraftUsersModule,
