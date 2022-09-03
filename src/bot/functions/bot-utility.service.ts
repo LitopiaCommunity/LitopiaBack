@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectDiscordClient } from "@discord-nestjs/core";
-import { APIEmbed, Client, Message, MessageReaction, TextChannel, User } from "discord.js";
+import { APIEmbed, Client, Message, MessageReaction, PartialMessage, TextChannel, User } from "discord.js";
 
 @Injectable()
 export class BotUtilityService {
@@ -66,6 +66,21 @@ export class BotUtilityService {
         callback(reaction, user);
       }
     });
+  }
+
+  /**
+   * Remove a selected reaction of specific user from a message
+   * @param message the message or partial message
+   * @param user discord user
+   * @param emoji The emoji string
+   */
+  async removeUserReactionFromMessage(message: Message | PartialMessage, user: User, emoji: string) {
+    const emojiReaction = message.reactions.cache.find((reaction) => reaction.emoji.name === emoji);
+    if (emojiReaction) {
+      this.logger.log(`Removing reaction ${emoji} from ${user.tag}`);
+      return await emojiReaction.users.remove(user);
+    }
+    this.logger.error(`Reaction ${emoji} not found on message ${message.id}`);
   }
 
 }

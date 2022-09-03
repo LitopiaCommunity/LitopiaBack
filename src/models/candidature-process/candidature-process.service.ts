@@ -8,7 +8,7 @@ import { UsersService } from "../users/users.service";
 import { DeepPartial } from "typeorm";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
 import { BotUtilityService } from "../../bot/functions/bot-utility.service";
-import { APIEmbed, MessageReaction, User } from "discord.js";
+import { APIEmbed, Message, MessageReaction, User } from "discord.js";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
@@ -93,8 +93,8 @@ export class CandidatureProcessService {
     const embed = await this.createEmbed(user);
     const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID,embed);
     if (message) {
-      await this.botUtilityService.listenForReaction(message, '👍',this.candidatureVoteCallback(user));
-      await this.botUtilityService.listenForReaction(message, '👎',this.candidatureVoteCallback(user));
+      await this.botUtilityService.listenForReaction(message, '👍',this.candidatureVoteCallback(user,message));
+      await this.botUtilityService.listenForReaction(message, '👎',this.candidatureVoteCallback(user, message));
     }
   }
 
@@ -117,15 +117,18 @@ export class CandidatureProcessService {
   /**
    * Emojis vote callback
    * @param candidat The candidat for which the vote is made
+   * @param message The message of the candidature
    */
-  candidatureVoteCallback(candidat: DeepPartial<UserEntity>){
+  candidatureVoteCallback(candidat: DeepPartial<UserEntity>, message: Message<true>){
     return async (emoji:MessageReaction, user:User) => {
      switch (emoji.emoji.name) {
         case '👍':
           await this.vote(user.id, candidat,true);
+          await this.botUtilityService.removeUserReactionFromMessage(message,user,'👎');
           break;
         case '👎':
           await this.vote(user.id, candidat, false);
+          await this.botUtilityService.removeUserReactionFromMessage(message,user,'👍');
           break;
      }
     }
