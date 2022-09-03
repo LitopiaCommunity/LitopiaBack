@@ -8,7 +8,7 @@ import { UsersService } from "../users/users.service";
 import { DeepPartial } from "typeorm";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
 import { BotUtilityService } from "../../bot/functions/bot-utility.service";
-import { APIEmbed, InteractionWebhook, MessagePayload, MessageTarget } from "discord.js";
+import { APIEmbed, MessageReaction, User } from "discord.js";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
@@ -93,10 +93,8 @@ export class CandidatureProcessService {
     const embed = await this.createEmbed(user);
     const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID,embed);
     if (message) {
-      await message.react('👍');
-      await message.react('👎');
-      await message.react('🤷');
-      await message.react('🚫');
+      await this.botUtilityService.listenForReaction(message, '👍',this.candidatureVoteCallback(user));
+      await this.botUtilityService.listenForReaction(message, '👎',this.candidatureVoteCallback(user));
     }
   }
 
@@ -115,5 +113,41 @@ export class CandidatureProcessService {
       }
     return embed;
   }
+
+  /**
+   * Emojis vote callback
+   * @param candidat The candidat for which the vote is made
+   */
+  candidatureVoteCallback(candidat: DeepPartial<UserEntity>){
+    return async (emoji:MessageReaction, user:User) => {
+     switch (emoji.emoji.name) {
+        case '👍':
+          await this.vote(user.id, candidat,true);
+          break;
+        case '👎':
+          await this.vote(user.id, candidat, false);
+          break;
+     }
+    }
+  }
+
+  /**
+   * Vote handler
+   * @parm discordID The discord id of the user
+   * @parm vote true if the vote is positive false if negative
+   */
+  async vote(discordID, candidat: DeepPartial<UserEntity>, vote: boolean){
+    const user = await this.userService.findOne(discordID);
+    if (user) {
+      if (![UserRole.CANDIDATE,UserRole.BAN,UserRole.GHOST,UserRole.REFUSED].includes(user.role)) {
+        return await this.botUtilityService.sendPrivateMessage(discordID, `Ton vote ${vote ? '👍' : '👎'}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`);
+      }else{
+        return await this.botUtilityService.sendPrivateMessage(discordID, `Tu ne peux pas voter pour ${candidat.minecraftUser.minecraftNickname} car tu es ${user.role}`);
+      }
+    }else{
+      return await this.botUtilityService.sendPrivateMessage(discordID, `Tu dois être inscrit sur litopia.fr sur le discord pour voter pour ${candidat.minecraftUser.minecraftNickname}`);
+    }
+  }
+
 
 }

@@ -44,6 +44,7 @@ import { BotModule } from "./bot/bot.module";
           intents:[
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.GuildMessageReactions,
             GatewayIntentBits.DirectMessages,
             GatewayIntentBits.MessageContent,
           ]
