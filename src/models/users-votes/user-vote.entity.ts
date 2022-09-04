@@ -7,7 +7,7 @@ enum VoteType {
 }
 
 @Entity()
-export class UserVotesEntity {
+export class UserVoteEntity {
   @PrimaryColumn()
   voterID: string;
 

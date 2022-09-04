@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
-import { UserVotesEntity } from "../users-votes/user-votes.entity";
+import { UserVoteEntity } from "../users-votes/user-vote.entity";
 
 export enum UserRole {
   GHOST = "ghost",
@@ -49,14 +49,14 @@ export class UserEntity {
   /**
    * The votes of users to this user
    */
-  @OneToMany(() => UserVotesEntity, userVotes => userVotes.votedFor)
-  votes: UserVotesEntity[];
+  @OneToMany(() => UserVoteEntity, userVotes => userVotes.votedFor)
+  votes: UserVoteEntity[];
 
   /**
    * The votes of this user to other users
    */
-  @OneToMany(() => UserVotesEntity, userVotes => userVotes.voter)
-  votedFor: UserVotesEntity[];
+  @OneToMany(() => UserVoteEntity, userVotes => userVotes.voter)
+  votedFor: UserVoteEntity[];
 
 
   @ApiProperty({
