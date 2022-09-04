@@ -22,7 +22,7 @@ export class UsersService {
   }
 
   findOne(discordID: string): Promise<UserEntity> {
-    return this.usersRepository.findOneBy({ discordID });
+    return this.usersRepository.findOne({where:{discordID},relations:['minecraftUser']});
   }
 
   async remove(id: string): Promise<void> {

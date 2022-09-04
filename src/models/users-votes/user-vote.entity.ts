@@ -1,17 +1,18 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { UserEntity } from "../users/user.entity";
 
-enum VoteType {
+export enum VoteType {
   FOR = "for",
   AGAINST = "against",
+  ABSTENTION = "abstention"
 }
 
 @Entity()
 export class UserVoteEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({type:"character varying",length:18})
   voterID: string;
 
-  @PrimaryColumn()
+  @PrimaryColumn({type:"character varying",length:18})
   votedForID: number;
 
   /**

@@ -5,6 +5,7 @@ import { UserVoteEntity } from "./user-vote.entity";
 
 @Module({
   imports:[TypeOrmModule.forFeature([UserVoteEntity])],
-  providers: [UsersVotesService]
+  providers: [UsersVotesService],
+  exports:[UsersVotesService]
 })
 export class UsersVotesModule {}

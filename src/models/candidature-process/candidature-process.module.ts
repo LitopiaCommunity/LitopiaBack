@@ -6,6 +6,7 @@ import { MinecraftUsersModule } from "../minecraft-users/minecraft-users.module"
 import { UsersModule } from "../users/users.module";
 import { BotModule } from "../../bot/bot.module";
 import { ConfigModule } from "@nestjs/config";
+import { UsersVotesModule } from "../users-votes/users-votes.module";
 
 @Module({
   imports:[
@@ -13,7 +14,8 @@ import { ConfigModule } from "@nestjs/config";
     MinecraftApiModule,
     MinecraftUsersModule,
     UsersModule,
-    BotModule
+    BotModule,
+    UsersVotesModule
   ],
   providers: [CandidatureProcessService],
   controllers: [CandidatureProcessController]

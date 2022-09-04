@@ -31,7 +31,7 @@ import { BotModule } from "./bot/bot.module";
         database: configService.get<string>('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get<boolean>('PRODUCTION'),
-        logging:[]
+        logging:'all'
       }),
       inject: [ConfigService],
     }),
