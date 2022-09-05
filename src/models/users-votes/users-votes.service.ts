@@ -13,6 +13,12 @@ export class UsersVotesService {
   constructor(@InjectRepository(UserVoteEntity) private userVotesRepository: Repository<UserVoteEntity>) {
   }
 
+  /**
+   * Create a new vote form a user to another user
+   * @param userWhoVote the user who vote
+   * @param userWhoWasVote the user who was vote by the user
+   * @param voteType the vote type (like, dislike, neutral)
+   */
   async vote(userWhoVote: UserEntity, userWhoWasVote: UserEntity, voteType: VoteType){
     // check if the user who was vote is a candidate
     if(userWhoWasVote.role!==UserRole.CANDIDATE){
@@ -20,7 +26,7 @@ export class UsersVotesService {
     }
 
     // check if the user can't vote
-    if([UserRole.CANDIDATE,UserRole.BAN,UserRole.GHOST,UserRole.REFUSED].includes(userWhoVote.role)){
+    if([UserRole.CANDIDATE,UserRole.PRE_ACCEPTED,UserRole.BAN,UserRole.GHOST,UserRole.REFUSED].includes(userWhoVote.role)){
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_VOTE));
     }
     this.logger.log(`User ${userWhoVote.discordID} vote ${voteType} for ${userWhoWasVote.discordID}`);
