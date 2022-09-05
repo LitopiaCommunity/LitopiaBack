@@ -134,44 +134,47 @@ export class CandidatureProcessService {
       const userWhoVote = await this.userService.findOne(user.id);
       const userWhoIsCandidat = await this.userService.findOne(candidat.discordID);
       // Check if the user who vote exist
-      if (userWhoVote) {
-        try {
-          // get the vote type from emoji
-          const voteType = CandidatureProcessService.emojiToVoteType(emoji.emoji.name);
-
-          //try to vote
-          await this.usersVotesService.vote(userWhoVote, userWhoIsCandidat, voteType);
-
-          // if the vote is accepted send a message to the user
-          await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`);
-
-          // And remove other reaction that the user have potentially made
-          const emojiToRemove = CandidatureProcessService.VOTE_EMOJI.filter(e => e !== emoji.emoji.name);
-          for (const emoji of emojiToRemove) {
-            await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji);
-          }
-        }catch (e) {
-          // if the vote is not accepted send a message to the user
-          if (e instanceof UserVoteException) {
-            //if it's a UserVoteException it's a know error so send warning message to console and private message to user who vote
-            this.logger.warn(e);
-            if (e.type === UserVoteErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_VOTE) {
-              await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Tu ne peux pas voter pour ${userWhoIsCandidat.minecraftUser.minecraftNickname} car tu es ${userWhoVote.role}`);
-            }
-            if (e.type === UserVoteErrorEnum.USER_WHO_WAS_VOTE_IS_NOT_CANDIDATE) {
-              await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Tu ne peux pas voter pour ${userWhoIsCandidat.minecraftUser.minecraftNickname} car il n'est pas ou plus candidat`);
-            }
-          }else {
-            //if it's not a UserVoteException it's a unknow error so send error message to console and private message to user who vote
-            this.logger.error(e);
-            await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Une erreur est survenue lors de ton vote pour ${userWhoIsCandidat.minecraftUser.minecraftNickname}`);
-          }
-          // In all case remove the reaction of the user
-          await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
-        }
-      } else {
+      if (!userWhoVote) {
         await this.botUtilityService.sendPrivateMessage(user.id, `Tu dois être inscrit sur litopia.fr sur le discord pour voter pour ${userWhoIsCandidat.minecraftUser.minecraftNickname}`);
         await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
+        return;
+      }
+      try {
+        // get the vote type from emoji
+        const voteType = CandidatureProcessService.emojiToVoteType(emoji.emoji.name);
+
+        //try to vote
+        await this.usersVotesService.vote(userWhoVote, userWhoIsCandidat, voteType);
+
+        // if the vote is accepted send a message to the user
+        await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`);
+
+        // And remove other reaction that the user have potentially made
+        const emojiToRemove = CandidatureProcessService.VOTE_EMOJI.filter(e => e !== emoji.emoji.name);
+        for (const emoji of emojiToRemove) {
+          await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji);
+        }
+      }catch (e) {
+        // In all case remove the reaction of the user
+        await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
+
+        // if the vote is not accepted send a message to the user
+        if (!(e instanceof UserVoteException)) {
+          //if it's not a UserVoteException it's a unknow error so send error message to console and private message to user who vote
+          this.logger.error(e);
+          await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Une erreur est survenue lors de ton vote pour ${userWhoIsCandidat.minecraftUser.minecraftNickname}`);
+          return;
+        }
+        //if it's a UserVoteException it's a know error so send warning message to console and private message to user who vote
+        this.logger.warn(e);
+        if (e.type === UserVoteErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_VOTE) {
+          await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Tu ne peux pas voter pour ${userWhoIsCandidat.minecraftUser.minecraftNickname} car tu es ${userWhoVote.role}`);
+          return;
+        }
+        if (e.type === UserVoteErrorEnum.USER_WHO_WAS_VOTE_IS_NOT_CANDIDATE) {
+          await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Tu ne peux pas voter pour ${userWhoIsCandidat.minecraftUser.minecraftNickname} car il n'est pas ou plus candidat`);
+          return;
+        }
       }
     };
   }
