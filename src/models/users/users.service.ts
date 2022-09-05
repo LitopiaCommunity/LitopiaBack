@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from "./user.entity";
+import { UserEntity, UserRole } from "./user.entity";
 import { DeepPartial, Repository, UpdateResult } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 
@@ -31,5 +31,13 @@ export class UsersService {
 
   update(discordID,user:DeepPartial<UserEntity>):Promise<UpdateResult>{
     return Promise.resolve(this.usersRepository.update({discordID},user))
+  }
+
+  /**
+   * count the number of user that have the list of roles
+   * @param roles[]
+   */
+  countByRoles(roles:UserRole[]):Promise<number>{
+    return this.usersRepository.createQueryBuilder('user').where('user.role IN (:...roles)',{roles}).getCount();
   }
 }
