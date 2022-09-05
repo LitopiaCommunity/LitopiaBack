@@ -60,7 +60,7 @@ export class UsersVotesService {
 
     try {
       // launch the acceptance process
-      await this.userAcceptationProcess(userWhoWasVote);
+      await this.prepareProcess(userWhoWasVote);
     }catch (e){
       this.logger.error(e.type);
     }
@@ -68,6 +68,21 @@ export class UsersVotesService {
     return theFinalVote;
   }
 
+  private async prepareProcess(user: UserEntity) {
+    const requiredNumberOfVotes = await this.getRequiredNumberOfVotes();
+    const numberOfVotes = await this.getNumberOfVotes(user);
+
+    // if not enough vote, we do nothing
+    if (numberOfVotes < requiredNumberOfVotes) {
+      return Promise.reject(new UserVoteException(UserVoteErrorEnum.NOT_ENOUGH_VOTE));
+    }
+
+    // if enough vote, we check inform litopien that this user as enough vote,
+    // and we launch the acceptance process with a delay of 5 minutes
+    await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Le candidat <@${user.discordID}> a reçu ${numberOfVotes} votes, il vous reste donc 5 minutes pour voter ou changer d'avis !`);
+
+    setTimeout(()=>this.userAcceptationProcess(user),1000*60*5);
+  }
 
   /**
    * Launch the acceptance process for a user
