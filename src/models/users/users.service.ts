@@ -40,4 +40,20 @@ export class UsersService {
   countByRoles(roles:UserRole[]):Promise<number>{
     return this.usersRepository.createQueryBuilder('user').where('user.role IN (:...roles)',{roles}).getCount();
   }
+
+  /**
+   * Refuse a user and update his role
+   * @param userWhoWasVote
+   */
+  async refuseUser(userWhoWasVote: UserEntity) {
+    return this.update(userWhoWasVote.discordID,{role:UserRole.REFUSED});
+  }
+
+  /**
+   * Accept a user and update his role
+   * @param userWhoWasVote
+   */
+  async preAcceptUser(userWhoWasVote: UserEntity) {
+    return this.update(userWhoWasVote.discordID,{role:UserRole.PRE_ACCEPTED});
+  }
 }

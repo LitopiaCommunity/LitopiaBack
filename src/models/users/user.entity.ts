@@ -16,7 +16,7 @@ import { UserVoteEntity } from "../users-votes/user-vote.entity";
 /**
  * The process of role designation
  *                                                     |-> BAN
- * GHOST -> CANDIDATE -> PRE_ACCEPTED -> TEST_CANDIDAT -> LITOPIEN -> ACTIVE_LITOPIEN -> INACTIVE_LITOPIEN -> BAN
+ * GHOST -> CANDIDATE -> PRE_ACCEPTED -> PRETOPIEN -> LITOPIEN -> ACTIVE_LITOPIEN -> INACTIVE_LITOPIEN -> BAN
  *                    |-> REFUSED     |-> REFUSED
  */
 
@@ -33,7 +33,7 @@ export enum UserRole {
   // When Litopien have vote positive for the candidate
   PRE_ACCEPTED = "pre-accepted",
   // When candidate have been accepted by staff
-  TEST_CANDIDAT = "test-candidat",
+  PRETOPIEN = "pretopien",
   // When the candidate is in the server for more than 1 month
   LITOPIEN = "litopien",
   // When player is active on the server (more than 4h per week discord or minecraft)
