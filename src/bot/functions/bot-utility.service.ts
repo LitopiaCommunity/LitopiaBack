@@ -83,4 +83,17 @@ export class BotUtilityService {
     this.logger.error(`Reaction ${emoji} not found on message ${message.id}`);
   }
 
+  /**
+   * Get Message from a channel
+   * @param channelId The channel id
+   * @param messageId The message id
+   */
+  async getMessagesFromId(channelId: string, messageId: string) {
+    const channel = await this.client.channels.fetch(channelId);
+    if (channel.isTextBased()) {
+      const textChannel = channel as TextChannel;
+      return await textChannel.messages.fetch(messageId);
+    }
+    this.logger.error(`Channel ${channelId} is not text based`);
+  }
 }

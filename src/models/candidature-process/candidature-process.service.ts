@@ -80,7 +80,12 @@ export class CandidatureProcessService {
 
     const createdUser = await this.userService.create(newUser);
 
-    await this.sendCandidatureToChannel(createdUser);
+    const message = await this.sendCandidatureToChannel(createdUser);
+
+    if (message) {
+      createdUser.candidatureDiscordMessageID = message.id;
+      await this.userService.update(createdUser.discordID, createdUser);
+    }
 
     return createdUser;
   }
@@ -105,6 +110,7 @@ export class CandidatureProcessService {
       for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
         await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
       }
+      return message;
     }
   }
 
@@ -112,15 +118,52 @@ export class CandidatureProcessService {
    * Create an embed for candidature
    */
   async createEmbed(user: UserEntity) {
+    const requiredVotes = this.usersVotesService.getRequiredNumberOfVotes();
+    const nbLikeVotes = this.usersVotesService.getNumberOfSelectedVotes(user, VoteType.FOR);
+    const nbDislikeVotes = this.usersVotesService.getNumberOfSelectedVotes(user, VoteType.AGAINST);
+    const nbNeutralVotes = this.usersVotesService.getNumberOfSelectedVotes(user, VoteType.ABSTENTION);
+    const hasPositiveRatio = this.usersVotesService.hasPositiveRatio(user);
+
+    const promiseResolve = await Promise.all([hasPositiveRatio,requiredVotes, nbLikeVotes, nbDislikeVotes, nbNeutralVotes])
+
     const embed: APIEmbed = {
       title: `Candidature de ${user.minecraftUser.minecraftNickname}`,
       description: user.candidature,
       color: 0x00ff00,
-      footer: {
-        text: `Candidature de ${user.minecraftUser.minecraftNickname}`,
+      author:{
+        name: user.minecraftUser.minecraftNickname,
         icon_url: `https://crafatar.com/avatars/${user.minecraftUser.minecraftUUID}?overlay`
-      }
+      },
+      fields: [
+        {
+          name:"Status",
+          value:
+            user.role === UserRole.CANDIDATE ?
+              "En attente de vote" :
+              user.role === UserRole.PRE_ACCEPTED ?
+                "En attente d'entretien" :
+                user.role === UserRole.REFUSED || user.role===UserRole.BAN ?
+                  "Refusé" : "Accepté",
+          inline: true
+        },
+        {
+          name: "Ratios",
+          value: `**${promiseResolve[0] ? "✅ Ratios positifs" : "❌ Ratios négatifs"}**`,
+          inline: true
+        },
+        {
+          name: "Votes requis",
+          value: `**${promiseResolve[1]}**`,
+          inline: true
+        },
+        {
+          name: "Votes",
+          value: `**${promiseResolve[2]}** 👍 / **${promiseResolve[3]}** 👎 / **${promiseResolve[4]}** 🤷`,
+          inline: false
+        },
+      ]
     };
+
     return embed;
   }
 
@@ -145,6 +188,9 @@ export class CandidatureProcessService {
 
         //try to vote
         await this.usersVotesService.vote(userWhoVote, userWhoIsCandidat, voteType);
+
+        // update the message with new votes
+        await this.updateCandidatureMessage(userWhoIsCandidat);
 
         // if the vote is accepted send a message to the user
         await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`);
@@ -187,6 +233,14 @@ export class CandidatureProcessService {
         return VoteType.AGAINST;
       case "🤷":
         return VoteType.ABSTENTION;
+    }
+  }
+
+  public async updateCandidatureMessage(user: UserEntity) {
+    const candidatureMsg = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, user.candidatureDiscordMessageID)
+    if(candidatureMsg){
+      const embed = await this.createEmbed(user);
+      await candidatureMsg.edit({ embeds:[embed] });
     }
   }
 

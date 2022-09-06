@@ -15,9 +15,10 @@ import { UsersVotesModule } from "../users-votes/users-votes.module";
     MinecraftUsersModule,
     UsersModule,
     BotModule,
-    UsersVotesModule
+    UsersVotesModule,
   ],
   providers: [CandidatureProcessService],
-  controllers: [CandidatureProcessController]
+  controllers: [CandidatureProcessController],
+  exports:[CandidatureProcessService]
 })
 export class CandidatureProcessModule {}

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserVoteEntity, VoteType } from "./user-vote.entity";
 import { Repository } from "typeorm";
@@ -7,6 +7,7 @@ import { UserVoteErrorEnum, UserVoteException } from "./user-vote.exception";
 import { UsersService } from "../users/users.service";
 import { BotUtilityService } from "../../bot/functions/bot-utility.service";
 import { ConfigService } from "@nestjs/config";
+import { CandidatureProcessService } from "../candidature-process/candidature-process.service";
 
 @Injectable()
 export class UsersVotesService {
@@ -17,6 +18,8 @@ export class UsersVotesService {
     @InjectRepository(UserVoteEntity) private userVotesRepository: Repository<UserVoteEntity>,
     private usersService: UsersService,
     private botUtils: BotUtilityService,
+    @Inject(forwardRef(() => CandidatureProcessService)) // we use forwardRef to avoid circular dependency
+    private candidatureProcessService:CandidatureProcessService,
     private configService: ConfigService) {
   }
 
@@ -106,11 +109,13 @@ export class UsersVotesService {
     // if enough vote, we check if the user has positive ratio to be accepted
     if (!await this.hasPositiveRatio(userWhoWasVote)) {
       // if the user has not positive ratio, we refuse him
-      return await Promise.all([this.usersService.refuseUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, false)]);
+      await Promise.all([this.usersService.refuseUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, false)]);
+      return await this.candidatureProcessService.updateCandidatureMessage(userWhoWasVote);
     }
 
     // if the user has positive ratio, we accept him
-    return await Promise.all([this.usersService.preAcceptUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, true)]);
+    await Promise.all([this.usersService.preAcceptUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, true)]);
+    return await this.candidatureProcessService.updateCandidatureMessage(userWhoWasVote);
   }
 
   /**

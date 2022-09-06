@@ -125,6 +125,9 @@ export class UserEntity {
   @Column({length:4096,nullable:true})
   candidature: string;
 
+  @Column({nullable:true,length:32})
+  candidatureDiscordMessageID:string;
+
   @ApiProperty()
   @Column({nullable:true})
   candidatureProposalAt:Date;
