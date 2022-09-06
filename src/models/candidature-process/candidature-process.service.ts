@@ -139,11 +139,11 @@ export class CandidatureProcessService {
           name:"Status",
           value:
             user.role === UserRole.CANDIDATE ?
-              "En attente de vote" :
+              "**🗳️ En attente de vote**" :
               user.role === UserRole.PRE_ACCEPTED ?
-                "En attente d'entretien" :
+                "**🎙️ En attente d'entretien**" :
                 user.role === UserRole.REFUSED || user.role===UserRole.BAN ?
-                  "Refusé" : "Accepté",
+                  "**❌ Refusé**" : "**✅ Accepté**",
           inline: true
         },
         {
