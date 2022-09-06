@@ -13,13 +13,15 @@ import { CandidatureProcessService } from "../candidature-process/candidature-pr
 export class UsersVotesService {
   private readonly logger = new Logger(UsersVotesService.name);
   private DISCORD_CANDIDATURE_CHANNEL_ID = this.configService.get<string>("DISCORD_CANDIDATURE_CHANNEL_ID");
+  // hashmap to store if acceptation process is already launch for a user
+  private acceptationProcessLaunched: { [key: string]: boolean } = {};
 
   constructor(
     @InjectRepository(UserVoteEntity) private userVotesRepository: Repository<UserVoteEntity>,
     private usersService: UsersService,
     private botUtils: BotUtilityService,
     @Inject(forwardRef(() => CandidatureProcessService)) // we use forwardRef to avoid circular dependency
-    private candidatureProcessService:CandidatureProcessService,
+    private candidatureProcessService: CandidatureProcessService,
     private configService: ConfigService) {
   }
 
@@ -64,7 +66,7 @@ export class UsersVotesService {
     try {
       // launch the acceptance process
       await this.prepareProcess(userWhoWasVote);
-    }catch (e){
+    } catch (e) {
       this.logger.error(e.type);
     }
 
@@ -79,12 +81,16 @@ export class UsersVotesService {
     if (numberOfVotes < requiredNumberOfVotes) {
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.NOT_ENOUGH_VOTE));
     }
+    // if the process is not already launched, we launch it
+    if (!this.acceptationProcessLaunched[user.discordID]) {
+      //set the process as prepare to launched
+      this.acceptationProcessLaunched[user.discordID] = true;
 
-    // if enough vote, we check inform litopien that this user as enough vote,
-    // and we launch the acceptance process with a delay of 5 minutes
-    await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Le candidat <@${user.discordID}> a reçu ${numberOfVotes} votes, il vous reste donc 5 minutes pour voter ou changer d'avis !`);
-
-    setTimeout(()=>this.userAcceptationProcess(user),1000*60*5);
+      // if enough vote, we check inform litopien that this user as enough vote,
+      // and we launch the acceptance process with a delay of 5 minutes
+      await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Le candidat <@${user.discordID}> a reçu ${numberOfVotes} votes, il vous reste donc 5 minutes pour voter ou changer d'avis !`);
+      setTimeout(() => this.userAcceptationProcess(user), 1000 * 60 * 5);
+    }
   }
 
   /**
@@ -92,6 +98,9 @@ export class UsersVotesService {
    * @param userWhoWasVote the user to accept
    */
   private async userAcceptationProcess(userWhoWasVote: UserEntity) {
+    // remove the user from the hashmap
+    delete this.acceptationProcessLaunched[userWhoWasVote.discordID];
+
     // check if the user who was vote is a candidate
     if (userWhoWasVote.role !== UserRole.CANDIDATE) {
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.USER_WHO_WAS_VOTE_IS_NOT_CANDIDATE));
@@ -134,7 +143,7 @@ export class UsersVotesService {
    */
   async getNumberOfVotes(user: UserEntity) {
     return this.userVotesRepository.createQueryBuilder("userVote")
-      .where("userVote.votedForID = :user", { user:user.discordID })
+      .where("userVote.votedForID = :user", { user: user.discordID })
       .getCount();
   }
 
@@ -145,7 +154,7 @@ export class UsersVotesService {
    */
   async getNumberOfSelectedVotes(user: UserEntity, voteType: VoteType) {
     return this.userVotesRepository.createQueryBuilder("userVote")
-      .where("userVote.votedForID = :user", { user:user.discordID })
+      .where("userVote.votedForID = :user", { user: user.discordID })
       .andWhere("userVote.vote = :voteType", { voteType })
       .getCount();
   }
@@ -174,7 +183,7 @@ export class UsersVotesService {
     const numberOfVotesFor = await this.getNumberOfSelectedVotes(user, VoteType.FOR);
     const numberOfVotesNeutral = await this.getNumberOfSelectedVotes(user, VoteType.ABSTENTION);
     // if the user has more than 50% of neutral vote, we refuse him
-    if(numberOfVotesNeutral > requiredNumberOfVotes * 0.5){
+    if (numberOfVotesNeutral > requiredNumberOfVotes * 0.5) {
       return false;
     }
     return numberOfVotesFor >= (requiredNumberOfVotes - numberOfVotesNeutral) * 0.75;
@@ -194,7 +203,7 @@ export class UsersVotesService {
         `Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
     );
     await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID,
-      `<@${user.discordID}> a été ${accepted ? 'accepté ! Bienvenue à lui' : 'refusé. Dommage !'}`
+      `<@${user.discordID}> a été ${accepted ? "accepté ! Bienvenue à lui" : "refusé. Dommage !"}`
     );
   }
 }
