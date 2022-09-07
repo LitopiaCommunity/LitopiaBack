@@ -212,18 +212,15 @@ export class CandidatureProcessService {
         // get the vote type from emoji
         const voteType = CandidatureProcessService.emojiToVoteType(emoji.emoji.name);
 
-        //try to vote
+        //try to vote await need cause vote has side effect and we need to wait for it
         await this.usersVotesService.vote(userWhoVote, userWhoIsCandidat, voteType);
 
         // update the message with new votes
-        await this.updateCandidatureMessage(userWhoIsCandidat);
-
-        // if the vote is accepted send a message to the user
-        await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`);
-
-        // Remove all reaction except the one who vote
-        await this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name);
-
+        await Promise.all([
+          this.updateCandidatureMessage(userWhoIsCandidat),
+          this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`),
+          this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name)
+          ]);
         this.logger.log(`Vote ${voteType} for ${userWhoIsCandidat.discordNickname} by ${userWhoVote.discordNickname}`);
       } catch (e) {
         // In all case remove the reaction of the user
