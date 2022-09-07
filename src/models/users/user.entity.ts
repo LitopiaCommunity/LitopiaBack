@@ -1,17 +1,58 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn
+} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
+import { UserVoteEntity } from "../users-votes/user-vote.entity";
+
+
+/**
+ * The process of role designation
+ *                                                     |-> BAN
+ * GHOST -> CANDIDATE -> PRE_ACCEPTED -> PRETOPIEN -> LITOPIEN -> ACTIVE_LITOPIEN -> INACTIVE_LITOPIEN -> BAN
+ *                    |-> REFUSED     |-> REFUSED
+ */
+
 
 export enum UserRole {
+  //------------------------//
+  // Cycle of the candidate //
+  //------------------------//
+
+  // User that have connected to website with discord
   GHOST = "ghost",
+  // User that have applied to be a candidate
   CANDIDATE = "candidate",
+  // When Litopien have vote positive for the candidate
+  PRE_ACCEPTED = "pre-accepted",
+  // When candidate have been accepted by staff
+  PRETOPIEN = "pretopien",
+  // When the candidate is in the server for more than 1 month
+  LITOPIEN = "litopien",
+  // When player is active on the server (more than 4h per week discord or minecraft)
+  ACTIVE_LITOPIEN = "active litopien",
+  // When player is inactive on the server (less than 4h per month discord or minecraft)
+  INACTIVE_LITOPIEN = "inactive litopien",
+
+  //-------------------//
+  // Utilitarian roles //
+  //-------------------//
   BAN="ban",
   REFUSED = "refuse",
-  LITOPIEN = "litopien",
-  ACTIVE_LITOPIEN = "active litopien",
-  INACTIVE_LITOPIEN = "inactive litopien",
-  LITOGOD = "litogod",
-  UNIQUE_GOD = "unique god",
+
+
+  //----------------//
+  // Honorary roles //
+  //----------------//
+  LITOGOD = "litogod", // Managers of the server
+  UNIQUE_GOD = "unique god", // Founders of the server (the two louis)
 }
 
 @Entity()
@@ -35,6 +76,19 @@ export class UserEntity {
   @OneToOne(() => MinecraftUserEntity)
   @JoinColumn()
   minecraftUser:MinecraftUserEntity;
+
+  /**
+   * The votes of users to this user
+   */
+  @OneToMany(() => UserVoteEntity, userVotes => userVotes.votedFor)
+  votes: UserVoteEntity[];
+
+  /**
+   * The votes of this user to other users
+   */
+  @OneToMany(() => UserVoteEntity, userVotes => userVotes.voter)
+  votedFor: UserVoteEntity[];
+
 
   @ApiProperty({
     required:true
@@ -70,6 +124,9 @@ export class UserEntity {
   })
   @Column({length:4096,nullable:true})
   candidature: string;
+
+  @Column({nullable:true,length:32})
+  candidatureDiscordMessageID:string;
 
   @ApiProperty()
   @Column({nullable:true})

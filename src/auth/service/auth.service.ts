@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { AuthenticationTypes, UserDetails } from "../utils/authentication.types";
-import { UserEntity } from "../../models/users/user.entity";
+import { UserEntity, UserRole } from "../../models/users/user.entity";
 import { UsersService } from "../../models/users/users.service";
 
 @Injectable()
@@ -15,6 +15,8 @@ export class AuthService implements AuthenticationTypes{
       discordID:details.discordId,
       discordNickname:details.username,
       discordAvatar:details.avatar,
+    }).then(async (user) => {
+      await this.usersService.updateRole(user, UserRole.GHOST)
     })
   }
 
