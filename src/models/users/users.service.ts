@@ -7,54 +7,55 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class UsersService {
-  private DISCORD_GUILD_ID = this.configService.get<string>('DISCORD_GUILD_ID');
-  private DISCORD_ROLE_GHOST = this.configService.get<string>('DISCORD_ROLE_GHOST');
-  private DISCORD_ROLE_CANDIDATE = this.configService.get<string>('DISCORD_ROLE_CANDIDATE');
-  private DISCORD_ROLE_PRE_ACCEPTED = this.configService.get<string>('DISCORD_ROLE_PRE_ACCEPTED');
-  private DISCORD_ROLE_PRETOPIEN = this.configService.get<string>('DISCORD_ROLE_PRETOPIEN');
-  private DISCORD_ROLE_LITOPIEN = this.configService.get<string>('DISCORD_ROLE_LITOPIEN');
-  private DISCORD_ROLE_ACTIVE_LITOPIEN = this.configService.get<string>('DISCORD_ROLE_ACTIVE_LITOPIEN');
-  private DISCORD_ROLE_INACTIVE_LITOPIEN = this.configService.get<string>('DISCORD_ROLE_INACTIVE_LITOPIEN');
-  private DISCORD_ROLE_REFUSED = this.configService.get<string>('DISCORD_ROLE_REFUSED');
-  private DISCORD_ROLE_LITOGOD = this.configService.get<string>('DISCORD_ROLE_LITOGOD');
-  private DISCORD_ROLE_UNIQUE_GOD = this.configService.get<string>('DISCORD_ROLE_UNIQUE_GOD');
+  private DISCORD_GUILD_ID = this.configService.get<string>("DISCORD_GUILD_ID");
+  private DISCORD_ROLE_GHOST = this.configService.get<string>("DISCORD_ROLE_GHOST");
+  private DISCORD_ROLE_CANDIDATE = this.configService.get<string>("DISCORD_ROLE_CANDIDATE");
+  private DISCORD_ROLE_PRE_ACCEPTED = this.configService.get<string>("DISCORD_ROLE_PRE_ACCEPTED");
+  private DISCORD_ROLE_PRETOPIEN = this.configService.get<string>("DISCORD_ROLE_PRETOPIEN");
+  private DISCORD_ROLE_LITOPIEN = this.configService.get<string>("DISCORD_ROLE_LITOPIEN");
+  private DISCORD_ROLE_ACTIVE_LITOPIEN = this.configService.get<string>("DISCORD_ROLE_ACTIVE_LITOPIEN");
+  private DISCORD_ROLE_INACTIVE_LITOPIEN = this.configService.get<string>("DISCORD_ROLE_INACTIVE_LITOPIEN");
+  private DISCORD_ROLE_REFUSED = this.configService.get<string>("DISCORD_ROLE_REFUSED");
+  private DISCORD_ROLE_LITOGOD = this.configService.get<string>("DISCORD_ROLE_LITOGOD");
+  private DISCORD_ROLE_UNIQUE_GOD = this.configService.get<string>("DISCORD_ROLE_UNIQUE_GOD");
 
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
     private botService: BotUtilityService,
     private configService: ConfigService
-  ) {}
+  ) {
+  }
 
-  create(user:DeepPartial<UserEntity>){
+  create(user: DeepPartial<UserEntity>) {
     const newUser = this.usersRepository.create(user);
     return Promise.resolve(this.usersRepository.save(newUser));
   }
 
   findAll(): Promise<UserEntity[]> {
     return this.usersRepository.find({
-      relations:['minecraftUser']
+      relations: ["minecraftUser"]
     });
   }
 
   findOne(discordID: string): Promise<UserEntity> {
-    return this.usersRepository.findOne({where:{discordID},relations:['minecraftUser']});
+    return this.usersRepository.findOne({ where: { discordID }, relations: ["minecraftUser"] });
   }
 
   async remove(id: string): Promise<void> {
     await this.usersRepository.delete(id);
   }
 
-  update(discordID,user:DeepPartial<UserEntity>):Promise<UpdateResult>{
-    return Promise.resolve(this.usersRepository.update({discordID},user))
+  update(discordID, user: DeepPartial<UserEntity>): Promise<UpdateResult> {
+    return Promise.resolve(this.usersRepository.update({ discordID }, user));
   }
 
   /**
    * count the number of user that have the list of roles
    * @param roles[]
    */
-  countByRoles(roles:UserRole[]):Promise<number>{
-    return this.usersRepository.createQueryBuilder('user').where('user.role IN (:...roles)',{roles}).getCount();
+  countByRoles(roles: UserRole[]): Promise<number> {
+    return this.usersRepository.createQueryBuilder("user").where("user.role IN (:...roles)", { roles }).getCount();
   }
 
   /**
@@ -62,7 +63,7 @@ export class UsersService {
    * @param userWhoWasVote
    */
   async refuseUser(userWhoWasVote: UserEntity) {
-    return this.updateRole(userWhoWasVote,UserRole.REFUSED);
+    return this.updateRole(userWhoWasVote, UserRole.REFUSED);
   }
 
   /**
@@ -70,10 +71,10 @@ export class UsersService {
    * @param userWhoWasVote
    */
   async preAcceptUser(userWhoWasVote: UserEntity) {
-    if (userWhoWasVote.role !== UserRole.CANDIDATE){
+    if (userWhoWasVote.role !== UserRole.CANDIDATE) {
       throw new Error("User is not a candidate");
     }
-    return this.updateRole(userWhoWasVote,UserRole.PRE_ACCEPTED);
+    return this.updateRole(userWhoWasVote, UserRole.PRE_ACCEPTED);
   }
 
   /**
@@ -81,11 +82,11 @@ export class UsersService {
    * @param userWhoWasVote
    */
   async acceptUser(userWhoWasVote: UserEntity) {
-    if (userWhoWasVote.role !== UserRole.PRE_ACCEPTED){
+    if (userWhoWasVote.role !== UserRole.PRE_ACCEPTED) {
       throw new Error("User is not pre accepted");
     }
     await this.update(userWhoWasVote.discordID, { candidatureAcceptedAt: new Date() });
-    return await this.updateRole(userWhoWasVote,UserRole.PRETOPIEN);
+    return await this.updateRole(userWhoWasVote, UserRole.PRETOPIEN);
   }
 
   /**
@@ -93,10 +94,10 @@ export class UsersService {
    * @param userToReject
    */
   async rejectUser(userToReject: UserEntity) {
-    if (userToReject.role !== UserRole.PRE_ACCEPTED){
+    if (userToReject.role !== UserRole.PRE_ACCEPTED) {
       throw new Error("User is not pre accepted");
     }
-    return await this.updateRole(userToReject,UserRole.REFUSED);
+    return await this.updateRole(userToReject, UserRole.REFUSED);
   }
 
   /**
@@ -104,34 +105,38 @@ export class UsersService {
    * @param user
    * @param role
    */
-  async updateRole(user:UserEntity,role:UserRole){
-    await this.update(user.discordID,{role:role});
-    await this.botService.addRole(user.discordID,this.DISCORD_GUILD_ID,this.getDiscordRole(role));
+  async updateRole(user: UserEntity, role: UserRole) {
+    await this.update(user.discordID, { role: role });
+    await this.botService.addRole(user.discordID, this.DISCORD_GUILD_ID, this.getDiscordRole(role));
     switch (role) {
       case UserRole.CANDIDATE:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_GHOST);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_GHOST);
         break;
       case UserRole.PRE_ACCEPTED:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_CANDIDATE);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_CANDIDATE);
         break;
       case UserRole.PRETOPIEN:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_PRE_ACCEPTED);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRE_ACCEPTED);
         break;
       case UserRole.LITOPIEN:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_PRETOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRETOPIEN);
         break;
       case UserRole.ACTIVE_LITOPIEN:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_LITOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN);
         break;
       case UserRole.INACTIVE_LITOPIEN:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_LITOPIEN);
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_ACTIVE_LITOPIEN);
+        await Promise.all([
+          this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN),
+          this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_ACTIVE_LITOPIEN)
+        ]);
         break;
       case UserRole.REFUSED:
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_PRE_ACCEPTED);
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_LITOPIEN);
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_CANDIDATE);
-        await this.botService.removeRole(user.discordID,this.DISCORD_GUILD_ID,this.DISCORD_ROLE_GHOST);
+        await Promise.all([
+          this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRE_ACCEPTED),
+          this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN),
+          this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_CANDIDATE),
+          this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_GHOST)
+        ]);
         break;
     }
 
@@ -172,6 +177,6 @@ export class UsersService {
    * @param roles UserRole[]
    */
   async getAllUsersWithRoles(roles: UserRole[]): Promise<UserEntity[]> {
-    return await this.usersRepository.find({ where:{ role: In(roles) }, relations: ['minecraftUser'] });
+    return await this.usersRepository.find({ where: { role: In(roles) }, relations: ["minecraftUser"] });
   }
 }
