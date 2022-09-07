@@ -17,13 +17,12 @@ export class BotUtilityService {
   async sendPrivateMessage(userId: string, message: string) {
     const user = await this.client.users.fetch(userId);
     this.logger.log(`Sending private message to ${user.tag}`);
-    if (user) {
-      try {
-        await user.send(message);
-      } catch (e) {
-        this.logger.error(e);
-        this.logger.error(`Error sending private message to ${user.tag}`);
-      }
+    if (!user) return;
+    try {
+      await user.send(message);
+    } catch (e) {
+      this.logger.error(e);
+      this.logger.error(`Error sending private message to ${user.tag}`);
     }
   }
 
@@ -76,11 +75,12 @@ export class BotUtilityService {
    */
   async removeUserReactionFromMessage(message: Message | PartialMessage, user: User, emoji: string) {
     const emojiReaction = message.reactions.cache.find((reaction) => reaction.emoji.name === emoji);
-    if (emojiReaction) {
-      this.logger.log(`Removing reaction ${emoji} from ${user.tag}`);
-      return await emojiReaction.users.remove(user);
+    if (!emojiReaction) {
+      this.logger.error(`Reaction ${emoji} not found on message ${message.id}`);
+      return;
     }
-    this.logger.error(`Reaction ${emoji} not found on message ${message.id}`);
+    this.logger.log(`Removing reaction ${emoji} from ${user.tag}`);
+    return await emojiReaction.users.remove(user);
   }
 
   /**
@@ -90,11 +90,12 @@ export class BotUtilityService {
    */
   async getMessagesFromId(channelId: string, messageId: string) {
     const channel = await this.client.channels.fetch(channelId);
-    if (channel.isTextBased()) {
-      const textChannel = channel as TextChannel;
-      return await textChannel.messages.fetch(messageId);
+    if (!channel.isTextBased()) {
+      this.logger.error(`Channel ${channelId} is not text based`);
+      return;
     }
-    this.logger.error(`Channel ${channelId} is not text based`);
+    const textChannel = channel as TextChannel;
+    return await textChannel.messages.fetch(messageId);
   }
 
   /**
