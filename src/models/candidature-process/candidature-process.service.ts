@@ -73,14 +73,13 @@ export class CandidatureProcessService {
       ...user,
       candidature: candidature.candidature,
       candidatureProposalAt: new Date(),
-      minecraftUser: newMcUser
+      minecraftUser: newMcUser,
+      role: UserRole.CANDIDATE
     };
 
     await this.sendMessageToUser(newUser.discordID);
 
     const createdUser = await this.userService.create(newUser);
-
-    await this.userService.updateRole(createdUser, UserRole.CANDIDATE);
 
     const message = await this.sendCandidatureToChannel(createdUser);
 
@@ -88,6 +87,9 @@ export class CandidatureProcessService {
       createdUser.candidatureDiscordMessageID = message.id;
       await this.userService.update(createdUser.discordID, createdUser);
     }
+
+    // update the user role in discord
+    await this.userService.updateRole(createdUser, UserRole.CANDIDATE);
 
     return createdUser;
   }
@@ -111,7 +113,6 @@ export class CandidatureProcessService {
     const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID, embed);
     if (message) {
       for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
-        await new Promise(resolve => setTimeout(resolve, 200))
         await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
       }
       return message;
@@ -143,7 +144,7 @@ export class CandidatureProcessService {
         {
           name: "Status",
           value:
-            user.role === UserRole.GHOST ? "En attente" :
+            user.role === UserRole.GHOST ? "**En attente**" :
               user.role === UserRole.CANDIDATE ?
                 "**🗳️ En attente de vote**" :
                 user.role === UserRole.PRE_ACCEPTED ?
@@ -180,6 +181,8 @@ export class CandidatureProcessService {
    */
   candidatureVoteCallback(candidat: UserEntity, message: Message<true>) {
     return async (emoji: MessageReaction, user: User) => {
+      // we don't want to listen to the bot reaction
+      if (user.bot) return;
       const userWhoVote = await this.userService.findOne(user.id);
       const userWhoIsCandidat = await this.userService.findOne(candidat.discordID);
       // Check if the user who vote exist
