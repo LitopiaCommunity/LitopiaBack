@@ -93,6 +93,8 @@ export class CandidatureProcessService {
     // update the user role in discord
     await this.userService.updateRole(createdUser, UserRole.CANDIDATE);
 
+    this.logger.log("Candidature created for " + createdUser.discordNickname);
+
     return createdUser;
   }
 
@@ -111,6 +113,7 @@ export class CandidatureProcessService {
    * @param user The user who have a candidature
    */
   async sendCandidatureToChannel(user: UserEntity) {
+    this.logger.log("Send candidature to channel for " + user.discordNickname);
     const embed = await this.createEmbed(user);
     const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID, embed);
     if (message) {
@@ -208,6 +211,8 @@ export class CandidatureProcessService {
 
         // Remove all reaction except the one who vote
         await this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name);
+
+        this.logger.log(`Vote ${voteType} for ${userWhoIsCandidat.discordNickname} by ${userWhoVote.discordNickname}`);
       } catch (e) {
         // In all case remove the reaction of the user
         await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
@@ -271,6 +276,7 @@ export class CandidatureProcessService {
     if (candidatureMsg) {
       const embed = await this.createEmbed(user);
       await candidatureMsg.edit({ embeds: [embed] });
+      this.logger.log(`Update candidature message for ${user.discordNickname}`);
     }
   }
 
@@ -293,6 +299,7 @@ export class CandidatureProcessService {
     ]);
     const updatedUser = await this.userService.findOne(userWhoIsAccepted.discordID);
     await this.updateCandidatureMessage(updatedUser)
+    this.logger.log(`User ${userWhoIsAccepted.discordNickname} accepted by ${userWhoPerformAction.discordNickname}`);
   }
 
   /**
@@ -314,5 +321,6 @@ export class CandidatureProcessService {
     ]);
     const updatedUser = await this.userService.findOne(userToReject.discordID);
     await this.updateCandidatureMessage(updatedUser)
+    this.logger.log(`User ${userToReject.discordNickname} rejected by ${userThatPerformAction.discordNickname}`);
   }
 }
