@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { UserEntity, UserRole } from "../users/user.entity";
 import { UserVoteErrorEnum, UserVoteException } from "./user-vote.exception";
 import { UsersService } from "../users/users.service";
-import { BotUtilityService } from "../../bot/functions/bot-utility.service";
+import { BotUtilityService } from "../../bot/utils/bot-utility.service";
 import { ConfigService } from "@nestjs/config";
 import { CandidatureProcessService } from "../candidature-process/candidature-process.service";
 
@@ -119,12 +119,14 @@ export class UsersVotesService {
     if (!await this.hasPositiveRatio(userWhoWasVote)) {
       // if the user has not positive ratio, we refuse him
       await Promise.all([this.usersService.refuseUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, false)]);
-      return await this.candidatureProcessService.updateCandidatureMessage(userWhoWasVote);
+      const updatedUser = await this.usersService.findOne(userWhoWasVote.discordID);
+      return await this.candidatureProcessService.updateCandidatureMessage(updatedUser);
     }
 
     // if the user has positive ratio, we accept him
     await Promise.all([this.usersService.preAcceptUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, true)]);
-    return await this.candidatureProcessService.updateCandidatureMessage(userWhoWasVote);
+    const updatedUser = await this.usersService.findOne(userWhoWasVote.discordID);
+    return await this.candidatureProcessService.updateCandidatureMessage(updatedUser);
   }
 
   /**
