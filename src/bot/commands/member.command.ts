@@ -7,6 +7,7 @@ import { UserRole } from "../../models/users/user.entity";
 @Command({
   name: "member",
   description: "Commande pour voir les membres du serveur",
+  defaultMemberPermissions:["SendMessages"]
 })
 @Injectable()
 export class MemberCommand implements DiscordCommand {

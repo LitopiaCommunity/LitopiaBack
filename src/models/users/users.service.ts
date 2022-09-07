@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 import { UserEntity, UserRole } from "./user.entity";
 import { DeepPartial, Repository, UpdateResult } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -50,10 +50,24 @@ export class UsersService {
   }
 
   /**
-   * Accept a user and update his role
+   * PreAccept a user and update his role
    * @param userWhoWasVote
    */
   async preAcceptUser(userWhoWasVote: UserEntity) {
+    if (userWhoWasVote.role !== UserRole.CANDIDATE){
+      throw new Error("User is not a candidate");
+    }
     return this.update(userWhoWasVote.discordID,{role:UserRole.PRE_ACCEPTED});
+  }
+
+  /**
+   * Accept a user and update his role
+   * @param userWhoWasVote
+   */
+  async acceptUser(userWhoWasVote: UserEntity) {
+    if (userWhoWasVote.role !== UserRole.PRE_ACCEPTED){
+      throw new Error("User is not pre accepted");
+    }
+    return this.update(userWhoWasVote.discordID,{role:UserRole.PRETOPIEN});
   }
 }

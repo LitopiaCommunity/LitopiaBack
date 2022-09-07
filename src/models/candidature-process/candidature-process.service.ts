@@ -13,6 +13,7 @@ import { ConfigService } from "@nestjs/config";
 import { UsersVotesService } from "../users-votes/users-votes.service";
 import { VoteType } from "../users-votes/user-vote.entity";
 import { UserVoteErrorEnum, UserVoteException } from "../users-votes/user-vote.exception";
+import { CandidatureProcessErrorEnum, CandidatureProcessException } from "./candidature-process.exception";
 
 @Injectable()
 export class CandidatureProcessService {
@@ -126,25 +127,25 @@ export class CandidatureProcessService {
     const nbNeutralVotes = this.usersVotesService.getNumberOfSelectedVotes(user, VoteType.ABSTENTION);
     const hasPositiveRatio = this.usersVotesService.hasPositiveRatio(user);
 
-    const promiseResolve = await Promise.all([hasPositiveRatio,requiredVotes, nbLikeVotes, nbDislikeVotes, nbNeutralVotes])
+    const promiseResolve = await Promise.all([hasPositiveRatio, requiredVotes, nbLikeVotes, nbDislikeVotes, nbNeutralVotes]);
 
     const embed: APIEmbed = {
       title: `Candidature de ${user.minecraftUser.minecraftNickname}`,
       description: user.candidature,
       color: 0x00ff00,
-      author:{
+      author: {
         name: user.minecraftUser.minecraftNickname,
         icon_url: `https://crafatar.com/avatars/${user.minecraftUser.minecraftUUID}?overlay`
       },
       fields: [
         {
-          name:"Status",
+          name: "Status",
           value:
             user.role === UserRole.CANDIDATE ?
               "**🗳️ En attente de vote**" :
               user.role === UserRole.PRE_ACCEPTED ?
                 "**🎙️ En attente d'entretien**" :
-                user.role === UserRole.REFUSED || user.role===UserRole.BAN ?
+                user.role === UserRole.REFUSED || user.role === UserRole.BAN ?
                   "**❌ Refusé**" : "**✅ Accepté**",
           inline: true
         },
@@ -162,7 +163,7 @@ export class CandidatureProcessService {
           name: "Votes",
           value: `**${promiseResolve[2]}** 👍 / **${promiseResolve[3]}** 👎 / **${promiseResolve[4]}** 🤷`,
           inline: false
-        },
+        }
       ]
     };
 
@@ -202,7 +203,7 @@ export class CandidatureProcessService {
         for (const emoji of emojiToRemove) {
           await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji);
         }
-      }catch (e) {
+      } catch (e) {
         // In all case remove the reaction of the user
         await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
 
@@ -247,11 +248,30 @@ export class CandidatureProcessService {
    * @param user
    */
   public async updateCandidatureMessage(user: UserEntity) {
-    const candidatureMsg = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, user.candidatureDiscordMessageID)
-    if(candidatureMsg){
+    const candidatureMsg = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, user.candidatureDiscordMessageID);
+    if (candidatureMsg) {
       const embed = await this.createEmbed(user);
-      await candidatureMsg.edit({ embeds:[embed] });
+      await candidatureMsg.edit({ embeds: [embed] });
     }
   }
 
+  /**
+   * Accept a candidat and send a message to the candidat
+   * @param userWhoIsAccepted
+   * @param userWhoPerformAction
+   */
+  public async acceptUser(userWhoIsAccepted: UserEntity, userWhoPerformAction: UserEntity) {
+    if (![UserRole.LITOGOD, UserRole.UNIQUE_GOD].includes(userWhoPerformAction.role)) {
+      return Promise.reject(new CandidatureProcessException(CandidatureProcessErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_ACCEPT));
+    }
+    if (userWhoIsAccepted.role !== UserRole.PRE_ACCEPTED) {
+      return Promise.reject(new CandidatureProcessException(CandidatureProcessErrorEnum.USER_WHO_IS_ACCEPTED_IS_NOT_PRE_ACCEPTED));
+    }
+    await Promise.all([
+      this.userService.acceptUser(userWhoIsAccepted),
+      this.botUtilityService.sendPrivateMessage(userWhoIsAccepted.discordID, `Félicitation tu es maintenant accepté sur le serveur de Litopia !`),
+      this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Félicitation à ${userWhoIsAccepted.minecraftUser.minecraftNickname} qui est maintenant accepté sur le serveur de Litopia !`),
+      this.updateCandidatureMessage(userWhoIsAccepted)
+    ]);
+  }
 }
