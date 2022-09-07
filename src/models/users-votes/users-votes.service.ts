@@ -200,12 +200,12 @@ export class UsersVotesService {
     await this.botUtils.sendPrivateMessage(user.discordID,
       accepted ?
         `Félicitation, les Litopien on voté pour t'accepter sur le serveur Litopia ! 
-        Cependant le processus de candidature n'est pas encore fini tu doit passer un entretient avec les Litodieux. 
-        Nous allons te contacter pochainement pour passer ton entretient vocal` :
-        `Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
+Cependant le processus de candidature n'est pas encore fini tu doit passer un entretient avec les Litodieux. 
+Nous allons te contacter pochainement pour passer ton entretient vocal` :
+`Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
     );
     await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID,
-      `<@${user.discordID}> a été ${accepted ? "accepté ! Bienvenue à lui" : "refusé. Dommage !"}`
+      `Vous avez ${accepted ? 'accepté' : 'refusé'} <@${user.discordID}> ${accepted ? " ! Il doit maintenant passer un entretient avec les modérateurs" : ". Dommage !"}`
     );
   }
 }
