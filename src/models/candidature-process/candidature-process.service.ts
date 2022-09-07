@@ -211,6 +211,8 @@ export class CandidatureProcessService {
 
         // Remove all reaction except the one who vote
         await this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name);
+
+        this.logger.log(`Vote ${voteType} for ${userWhoIsCandidat.discordNickname} by ${userWhoVote.discordNickname}`);
       } catch (e) {
         // In all case remove the reaction of the user
         await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
