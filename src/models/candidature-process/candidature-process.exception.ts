@@ -1,6 +1,8 @@
 export enum CandidatureProcessErrorEnum {
   USER_HAS_NOT_THE_RIGHT_TO_ACCEPT = 'user has not the right to accept',
   USER_WHO_IS_ACCEPTED_IS_NOT_PRE_ACCEPTED = 'user who is accepted is not pre accepted',
+  USER_HAS_NOT_THE_RIGHT_TO_REJECT = 'user has not the right to reject',
+  USER_WHO_IS_REJECTED_IS_NOT_PRE_ACCEPTED  = 'user who is rejected is not pre accepted',
 }
 
 export class CandidatureProcessException extends Error{

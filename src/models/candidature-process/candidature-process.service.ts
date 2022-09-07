@@ -281,4 +281,20 @@ export class CandidatureProcessService {
     const updatedUser = await this.userService.findOne(userWhoIsAccepted.discordID);
     await this.updateCandidatureMessage(updatedUser)
   }
+
+  async rejectUser(userToReject: UserEntity, userThatPerformAction: UserEntity) {
+    if (![UserRole.LITOGOD, UserRole.UNIQUE_GOD].includes(userThatPerformAction.role)) {
+      return Promise.reject(new CandidatureProcessException(CandidatureProcessErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_REJECT));
+    }
+    if (userToReject.role !== UserRole.PRE_ACCEPTED) {
+      return Promise.reject(new CandidatureProcessException(CandidatureProcessErrorEnum.USER_WHO_IS_REJECTED_IS_NOT_PRE_ACCEPTED));
+    }
+    await Promise.all([
+      this.userService.rejectUser(userToReject),
+      this.botUtilityService.sendPrivateMessage(userToReject.discordID, `Désolé mais tu as été refusé sur le serveur de Litopia !`),
+      this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `${userToReject.minecraftUser.minecraftNickname} a été refusé. Il ne pourra pas rejoindre le serveur de Litopia !`),
+    ]);
+    const updatedUser = await this.userService.findOne(userToReject.discordID);
+    await this.updateCandidatureMessage(updatedUser)
+  }
 }

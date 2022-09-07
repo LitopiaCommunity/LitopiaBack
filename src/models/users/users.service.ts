@@ -84,7 +84,18 @@ export class UsersService {
     if (userWhoWasVote.role !== UserRole.PRE_ACCEPTED){
       throw new Error("User is not pre accepted");
     }
-    return this.updateRole(userWhoWasVote,UserRole.PRETOPIEN);
+    return await this.updateRole(userWhoWasVote,UserRole.PRETOPIEN);
+  }
+
+  /**
+   * Rejected a user and update his role
+   * @param userToReject
+   */
+  async rejectUser(userToReject: UserEntity) {
+    if (userToReject.role !== UserRole.PRE_ACCEPTED){
+      throw new Error("User is not pre accepted");
+    }
+    return await this.updateRole(userToReject,UserRole.REFUSED);
   }
 
   /**

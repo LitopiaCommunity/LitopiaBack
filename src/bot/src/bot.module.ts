@@ -6,6 +6,7 @@ import { MemberCommand } from "./commands/member.command";
 import { UsersModule } from "../../models/users/users.module";
 import { AcceptCommand } from "./commands/accept.command";
 import { CandidatureProcessModule } from "../../models/candidature-process/candidature-process.module";
+import { RejectCommand } from "./commands/reject.command";
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { CandidatureProcessModule } from "../../models/candidature-process/candi
     CandidatureProcessModule,
   ],
   controllers: [],
-  providers: [BotGateway,PingCommand,MemberCommand,AcceptCommand],
+  providers: [BotGateway,PingCommand,MemberCommand,AcceptCommand,RejectCommand],
 })
 export class BotModule{}
