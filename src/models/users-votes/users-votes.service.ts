@@ -51,7 +51,7 @@ export class UsersVotesService {
       }
     });
     if (vote) {
-      this.logger.log(`User ${userWhoVote.discordID} already vote ${vote.vote} for ${userWhoWasVote.discordID} so we update the vote`);
+      this.logger.log(`User ${userWhoVote.discordID} already vote ${vote.vote} for ${userWhoWasVote.discordID} so we update his vote`);
       return this.updateVote(vote, voteType);
     }
     // create the vote
@@ -81,6 +81,7 @@ export class UsersVotesService {
     if (numberOfVotes < requiredNumberOfVotes) {
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.NOT_ENOUGH_VOTE));
     }
+
     // if the process is not already launched, we launch it
     if (!this.acceptationProcessLaunched[user.discordID]) {
       //set the process as prepare to launched
@@ -90,6 +91,7 @@ export class UsersVotesService {
       // and we launch the acceptance process with a delay of 5 minutes
       await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Le candidat <@${user.discordID}> a reçu ${numberOfVotes} votes, il vous reste donc 5 minutes pour voter ou changer d'avis !`);
       setTimeout(() => this.userAcceptationProcess(user), 1000 * 60 * 5);
+      this.logger.log(`User ${user.discordID} has enough votes (${numberOfVotes}) to be processed. We launch the process in 5 minutes`);
     }
   }
 
@@ -114,16 +116,19 @@ export class UsersVotesService {
     if (numberOfVotes < requiredNumberOfVotes) {
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.NOT_ENOUGH_VOTE));
     }
+    this.logger.log(`Acceptation/Refusal process for user ${userWhoWasVote.discordID} is launched`);
 
     // if enough vote, we check if the user has positive ratio to be accepted
     if (!await this.hasPositiveRatio(userWhoWasVote)) {
       // if the user has not positive ratio, we refuse him
+      this.logger.log(`User ${userWhoWasVote.discordID} has not enough positive ratio to be accepted so we refuse him`);
       await Promise.all([this.usersService.refuseUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, false)]);
       const updatedUser = await this.usersService.findOne(userWhoWasVote.discordID);
       return await this.candidatureProcessService.updateCandidatureMessage(updatedUser);
     }
 
     // if the user has positive ratio, we accept him
+    this.logger.log(`User ${userWhoWasVote.discordID} has enough positive ratio to be accepted so we accept him`);
     await Promise.all([this.usersService.preAcceptUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, true)]);
     const updatedUser = await this.usersService.findOne(userWhoWasVote.discordID);
     return await this.candidatureProcessService.updateCandidatureMessage(updatedUser);
