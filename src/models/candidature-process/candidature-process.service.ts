@@ -115,14 +115,26 @@ export class CandidatureProcessService {
   async sendCandidatureToChannel(user: UserEntity) {
     this.logger.log("Send candidature to channel for " + user.discordNickname);
     const embed = await this.createEmbed(user);
-    const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID, embed);
+    const message = await this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, embed);
     if (message) {
-      for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
-        await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
-      }
-      return message;
+      await this.registerEmojiReactionCalback(message.id, user);
+    }
+    return message;
+  }
+
+  /**
+   * Register Emoji reaction for candidature
+   * @Param message The message of the candidature
+   * @Param user The user who have a candidature
+   */
+  async registerEmojiReactionCalback(messageID: string, user: UserEntity) {
+    this.logger.log("Register emoji reaction for " + user.discordNickname);
+    const message = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, messageID);
+    for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
+      await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
     }
   }
+
 
   /**
    * Create an embed for candidature

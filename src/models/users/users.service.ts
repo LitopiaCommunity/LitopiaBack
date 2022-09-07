@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { UserEntity, UserRole } from "./user.entity";
-import { DeepPartial, Repository, UpdateResult } from "typeorm";
+import { DeepPartial, In, Repository, UpdateResult } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BotUtilityService } from "../../bot/utils/bot-utility.service";
 import { ConfigService } from "@nestjs/config";
@@ -165,5 +165,13 @@ export class UsersService {
       case UserRole.UNIQUE_GOD:
         return this.DISCORD_ROLE_UNIQUE_GOD;
     }
+  }
+
+  /**
+   * Get all the users that have the role and join the minecraft user entity
+   * @param roles UserRole[]
+   */
+  async getAllUsersWithRoles(roles: UserRole[]): Promise<UserEntity[]> {
+    return await this.usersRepository.find({ where:{ role: In(roles) }, relations: ['minecraftUser'] });
   }
 }
