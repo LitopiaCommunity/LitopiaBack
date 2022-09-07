@@ -77,7 +77,9 @@ export class CandidatureProcessService {
       role: UserRole.CANDIDATE
     };
 
-    await this.sendMessageToUser(newUser.discordID);
+    this.sendMessageToUser(newUser.discordID)
+      .then(()=>this.logger.log("Confirmation candidature message send to "+newUser.discordNickname))
+      .catch(e=>this.logger.error(e));
 
     const createdUser = await this.userService.create(newUser);
 
