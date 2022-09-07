@@ -80,14 +80,14 @@ export class CandidatureProcessService {
 
     const createdUser = await this.userService.create(newUser);
 
+    await this.userService.updateRole(createdUser, UserRole.CANDIDATE);
+
     const message = await this.sendCandidatureToChannel(createdUser);
 
     if (message) {
       createdUser.candidatureDiscordMessageID = message.id;
       await this.userService.update(createdUser.discordID, createdUser);
     }
-
-    await this.userService.updateRole(createdUser, UserRole.CANDIDATE);
 
     return createdUser;
   }
@@ -142,12 +142,13 @@ export class CandidatureProcessService {
         {
           name: "Status",
           value:
-            user.role === UserRole.CANDIDATE ?
-              "**🗳️ En attente de vote**" :
-              user.role === UserRole.PRE_ACCEPTED ?
-                "**🎙️ En attente d'entretien**" :
-                user.role === UserRole.REFUSED || user.role === UserRole.BAN ?
-                  "**❌ Refusé**" : "**✅ Accepté**",
+            user.role === UserRole.GHOST ? "En attente" :
+              user.role === UserRole.CANDIDATE ?
+                "**🗳️ En attente de vote**" :
+                user.role === UserRole.PRE_ACCEPTED ?
+                  "**🎙️ En attente d'entretien**" :
+                  user.role === UserRole.REFUSED || user.role === UserRole.BAN ?
+                    "**❌ Refusé**" : "**✅ Accepté**",
           inline: true
         },
         {
