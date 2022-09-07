@@ -84,6 +84,7 @@ export class UsersService {
     if (userWhoWasVote.role !== UserRole.PRE_ACCEPTED){
       throw new Error("User is not pre accepted");
     }
+    await this.update(userWhoWasVote.discordID, { candidatureAcceptedAt: new Date() });
     return await this.updateRole(userWhoWasVote,UserRole.PRETOPIEN);
   }
 
