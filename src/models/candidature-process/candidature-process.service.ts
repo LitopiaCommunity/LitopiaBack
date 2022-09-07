@@ -102,6 +102,7 @@ export class CandidatureProcessService {
 
   /**
    * Send candidature to discord channel add reaction and listen to reaction for vote
+   * @param user The user who have a candidature
    */
   async sendCandidatureToChannel(user: UserEntity) {
     const embed = await this.createEmbed(user);
@@ -116,6 +117,7 @@ export class CandidatureProcessService {
 
   /**
    * Create an embed for candidature
+   * @param user the candidature user we want to post embed on discord
    */
   async createEmbed(user: UserEntity) {
     const requiredVotes = this.usersVotesService.getRequiredNumberOfVotes();
@@ -225,6 +227,10 @@ export class CandidatureProcessService {
     };
   }
 
+  /**
+   * Convert an emoji to a vote type
+   * @param emoji
+   */
   static emojiToVoteType(emoji: string) {
     switch (emoji) {
       case "👍":
@@ -236,6 +242,10 @@ export class CandidatureProcessService {
     }
   }
 
+  /**
+   * Update the candidature message on discord with last votes
+   * @param user
+   */
   public async updateCandidatureMessage(user: UserEntity) {
     const candidatureMsg = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, user.candidatureDiscordMessageID)
     if(candidatureMsg){
