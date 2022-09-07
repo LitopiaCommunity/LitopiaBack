@@ -111,6 +111,7 @@ export class CandidatureProcessService {
     const message = await this.botUtilityService.sendMessageToChannel(process.env.DISCORD_CANDIDATURE_CHANNEL_ID, embed);
     if (message) {
       for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
+        await new Promise(resolve => setTimeout(resolve, 200))
         await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
       }
       return message;
