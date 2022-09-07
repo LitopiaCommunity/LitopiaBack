@@ -34,21 +34,21 @@ export class BotUtilityService {
    */
   async sendMessageToChannel(channelId: string, payload: APIEmbed | string) {
     const channel = await this.client.channels.fetch(channelId);
-    if (channel.isTextBased()) {
-      const textChannel = channel as TextChannel;
-      this.logger.log(`Sending embed message to ${textChannel.name}`);
-      try {
-        if (typeof payload === "string") {
-          await textChannel.send(payload);
-        } else {
-          return await textChannel.send({ embeds: [payload] });
-        }
-      } catch (e) {
-        this.logger.error(e);
-        this.logger.error(`Error sending embed message to ${channelId}`);
-      }
-    } else {
+    if (!channel.isTextBased()) {
       this.logger.error(`Channel ${channelId} is not text based`);
+      return;
+    }
+    const textChannel = channel as TextChannel;
+    this.logger.log(`Sending embed message to ${textChannel.name}`);
+    try {
+      if (typeof payload === "string") {
+        await textChannel.send(payload);
+      } else {
+        return await textChannel.send({ embeds: [payload] });
+      }
+    } catch (e) {
+      this.logger.error(e);
+      this.logger.error(`Error sending embed message to ${channelId}`);
     }
   }
 
@@ -58,10 +58,10 @@ export class BotUtilityService {
    * @param emoji
    * @param callback (user, reaction) => void
    */
-  async listenForReaction(message: Message<true>, emoji: string, callback: (reaction: MessageReaction,user:User,) => void) {
+  async listenForReaction(message: Message<true>, emoji: string, callback: (reaction: MessageReaction, user: User) => void) {
     await message.react(emoji);
     const collector = message.createReactionCollector({ dispose: true });
-    collector.on('collect', (reaction, user) => {
+    collector.on("collect", (reaction, user) => {
       if (reaction.emoji.name === emoji) {
         callback(reaction, user);
       }
@@ -103,7 +103,7 @@ export class BotUtilityService {
    * @param guildID The guild id
    * @param roleID The role id
    */
-  async addRole(discordID: string, guildID:string, roleID: string) {
+  async addRole(discordID: string, guildID: string, roleID: string) {
     const guild = await this.client.guilds.fetch(guildID);
     const member = await guild.members.fetch(discordID);
     const roleToAdd = guild.roles.cache.find((r) => r.id === roleID);
@@ -118,7 +118,7 @@ export class BotUtilityService {
    * @param guildID The guild id
    * @param roleID The role id
    */
-  async removeRole(discordID: string, guildID:string, roleID: string) {
+  async removeRole(discordID: string, guildID: string, roleID: string) {
     const guild = await this.client.guilds.fetch(guildID);
     const member = await guild.members.fetch(discordID);
     const roleToRemove = guild.roles.cache.find((r) => r.id === roleID);
