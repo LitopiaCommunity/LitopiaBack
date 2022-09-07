@@ -206,11 +206,8 @@ export class CandidatureProcessService {
         // if the vote is accepted send a message to the user
         await this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`);
 
-        // And remove other reaction that the user have potentially made
-        const emojiToRemove = CandidatureProcessService.VOTE_EMOJI.filter(e => e !== emoji.emoji.name);
-        for (const emoji of emojiToRemove) {
-          await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji);
-        }
+        // Remove all reaction except the one who vote
+        await this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name);
       } catch (e) {
         // In all case remove the reaction of the user
         await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji.emoji.name);
@@ -234,6 +231,20 @@ export class CandidatureProcessService {
         }
       }
     };
+  }
+
+  /**
+   * Remove every other reaction of the user on the message
+   * @param message The message
+   * @param user The user
+   * @param emojiOfTheVote The emoji to keep
+   */
+  private async removeOtherUserReactionFromMessage(message: Message<true>, user: User, emojiOfTheVote: string) {
+    // And remove other reaction that the user have potentially made
+    const emojiToRemove = CandidatureProcessService.VOTE_EMOJI.filter(e => e !== emojiOfTheVote);
+    for (const emoji of emojiToRemove) {
+      await this.botUtilityService.removeUserReactionFromMessage(message, user, emoji);
+    }
   }
 
   /**
@@ -284,7 +295,12 @@ export class CandidatureProcessService {
     await this.updateCandidatureMessage(updatedUser)
   }
 
-  async rejectUser(userToReject: UserEntity, userThatPerformAction: UserEntity) {
+  /**
+   * Refuse a candidat and send a message to the candidat
+   * @param userToReject
+   * @param userThatPerformAction
+   */
+  public async rejectUser(userToReject: UserEntity, userThatPerformAction: UserEntity) {
     if (![UserRole.LITOGOD, UserRole.UNIQUE_GOD].includes(userThatPerformAction.role)) {
       return Promise.reject(new CandidatureProcessException(CandidatureProcessErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_REJECT));
     }
