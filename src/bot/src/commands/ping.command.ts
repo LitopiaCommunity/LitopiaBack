@@ -4,7 +4,7 @@ import { CommandInteraction } from "discord.js";
 
 @Command({
   name: "ping",
-  description: "Le bot répond pong",
+  description: "Le src répond pong",
   defaultMemberPermissions:["ViewChannel"]
 })
 @Injectable()

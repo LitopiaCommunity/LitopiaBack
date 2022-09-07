@@ -6,14 +6,14 @@ import {
   TransformedCommandExecutionContext,
   UsePipes
 } from "@discord-nestjs/core";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { AcceptDto } from "./dto/accept.dto";
-import { CandidatureProcessService } from "../../models/candidature-process/candidature-process.service";
-import { UsersService } from "../../models/users/users.service";
+import { CandidatureProcessService } from "../../../models/candidature-process/candidature-process.service";
+import { UsersService } from "../../../models/users/users.service";
 import {
   CandidatureProcessErrorEnum,
   CandidatureProcessException
-} from "../../models/candidature-process/candidature-process.exception";
+} from "../../../models/candidature-process/candidature-process.exception";
 
 @Command({
   name: "accept",
@@ -24,11 +24,7 @@ import {
 @Injectable()
 export class AcceptCommand implements DiscordTransformedCommand<AcceptDto> {
 
-  constructor(
-    @Inject(forwardRef(() => CandidatureProcessService)) // we use forwardRef to avoid circular dependency
-    private candidatureProcessService:CandidatureProcessService,
-    private userService:UsersService,
-    ){}
+  constructor(private candidatureProcessService:CandidatureProcessService,private userService:UsersService){}
 
   async handler(@Payload() dto: AcceptDto, { interaction }: TransformedCommandExecutionContext) {
     //get user from dto

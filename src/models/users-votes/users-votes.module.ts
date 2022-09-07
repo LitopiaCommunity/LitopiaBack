@@ -3,15 +3,15 @@ import { UsersVotesService } from './users-votes.service';
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserVoteEntity } from "./user-vote.entity";
 import { UsersModule } from "../users/users.module";
-import { BotModule } from "../../bot/bot.module";
 import { ConfigModule } from "@nestjs/config";
 import { CandidatureProcessModule } from "../candidature-process/candidature-process.module";
+import { BotFunctionModule } from "../../bot/utils/bot.function.module";
 
 @Module({
   imports:[
     TypeOrmModule.forFeature([UserVoteEntity]),
     UsersModule,
-    BotModule,
+    BotFunctionModule,
     forwardRef(()=>CandidatureProcessModule), // we use forwardRef to avoid circular dependency
     ConfigModule
   ],

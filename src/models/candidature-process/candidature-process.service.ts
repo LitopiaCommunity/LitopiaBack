@@ -7,7 +7,7 @@ import { MinecraftUsersService } from "../minecraft-users/minecraft-users.servic
 import { UsersService } from "../users/users.service";
 import { DeepPartial } from "typeorm";
 import { MinecraftUserEntity } from "../minecraft-users/minecraft-user.entity";
-import { BotUtilityService } from "../../bot/functions/bot-utility.service";
+import { BotUtilityService } from "../../bot/utils/bot-utility.service";
 import { APIEmbed, Message, MessageReaction, User } from "discord.js";
 import { ConfigService } from "@nestjs/config";
 import { UsersVotesService } from "../users-votes/users-votes.service";
@@ -71,7 +71,6 @@ export class CandidatureProcessService {
 
     newUser = {
       ...user,
-      role: UserRole.CANDIDATE,
       candidature: candidature.candidature,
       candidatureProposalAt: new Date(),
       minecraftUser: newMcUser
@@ -87,6 +86,8 @@ export class CandidatureProcessService {
       createdUser.candidatureDiscordMessageID = message.id;
       await this.userService.update(createdUser.discordID, createdUser);
     }
+
+    await this.userService.updateRole(createdUser, UserRole.CANDIDATE);
 
     return createdUser;
   }
@@ -271,7 +272,8 @@ export class CandidatureProcessService {
       this.userService.acceptUser(userWhoIsAccepted),
       this.botUtilityService.sendPrivateMessage(userWhoIsAccepted.discordID, `Félicitation tu es maintenant accepté sur le serveur de Litopia !`),
       this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Félicitation à ${userWhoIsAccepted.minecraftUser.minecraftNickname} qui est maintenant accepté sur le serveur de Litopia !`),
-      this.updateCandidatureMessage(userWhoIsAccepted)
     ]);
+    const updatedUser = await this.userService.findOne(userWhoIsAccepted.discordID);
+    await this.updateCandidatureMessage(updatedUser)
   }
 }

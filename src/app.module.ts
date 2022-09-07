@@ -13,7 +13,8 @@ import { CandidatureProcessModule } from "./models/candidature-process/candidatu
 import { MinecraftApiModule } from "./api/minecraft-api/minecraft-api.module";
 import { DiscordModule } from "@discord-nestjs/core";
 import { GatewayIntentBits } from 'discord.js';
-import { BotModule } from "./bot/bot.module";
+import { BotModule } from "./bot/src/bot.module";
+import { BotFunctionModule } from "./bot/utils/bot.function.module";
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { BotModule } from "./bot/bot.module";
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.GuildMessageReactions,
+            GatewayIntentBits.GuildMembers,
             GatewayIntentBits.DirectMessages,
             GatewayIntentBits.MessageContent,
           ]
@@ -52,6 +54,7 @@ import { BotModule } from "./bot/bot.module";
       })
     }),
     BotModule,
+    BotFunctionModule,
     CandidatureProcessModule,
     UsersModule,
     MinecraftUsersModule,

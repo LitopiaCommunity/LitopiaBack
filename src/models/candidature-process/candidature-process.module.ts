@@ -4,9 +4,9 @@ import { CandidatureProcessController } from './candidature-process.controller';
 import { MinecraftApiModule } from "../../api/minecraft-api/minecraft-api.module";
 import { MinecraftUsersModule } from "../minecraft-users/minecraft-users.module";
 import { UsersModule } from "../users/users.module";
-import { BotModule } from "../../bot/bot.module";
 import { ConfigModule } from "@nestjs/config";
 import { UsersVotesModule } from "../users-votes/users-votes.module";
+import { BotFunctionModule } from "../../bot/utils/bot.function.module";
 
 @Module({
   imports:[
@@ -14,7 +14,7 @@ import { UsersVotesModule } from "../users-votes/users-votes.module";
     MinecraftApiModule,
     MinecraftUsersModule,
     UsersModule,
-    BotModule,
+    BotFunctionModule,
     UsersVotesModule,
   ],
   providers: [CandidatureProcessService],

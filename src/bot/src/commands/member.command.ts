@@ -1,8 +1,8 @@
 import { Command, DiscordCommand } from "@discord-nestjs/core";
 import { Injectable } from "@nestjs/common";
 import { CommandInteraction } from "discord.js";
-import { UsersService } from "../../models/users/users.service";
-import { UserRole } from "../../models/users/user.entity";
+import { UsersService } from "../../../models/users/users.service";
+import { UserRole } from "../../../models/users/user.entity";
 
 @Command({
   name: "member",
@@ -12,7 +12,7 @@ import { UserRole } from "../../models/users/user.entity";
 @Injectable()
 export class MemberCommand implements DiscordCommand {
 
-  constructor(private userService: UsersService) {
+  constructor(private readonly userService: UsersService) {
   }
 
 

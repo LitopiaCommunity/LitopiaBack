@@ -96,4 +96,35 @@ export class BotUtilityService {
     }
     this.logger.error(`Channel ${channelId} is not text based`);
   }
+
+  /**
+   * Add a role to a user
+   * @param discordID The discord id
+   * @param guildID The guild id
+   * @param roleID The role id
+   */
+  async addRole(discordID: string, guildID:string, roleID: string) {
+    const guild = await this.client.guilds.fetch(guildID);
+    const member = await guild.members.fetch(discordID);
+    const roleToAdd = guild.roles.cache.find((r) => r.id === roleID);
+    if (roleToAdd) {
+      return await member.roles.add(roleToAdd);
+    }
+  }
+
+  /**
+   * Remove a role to a user
+   * @param discordID The discord id
+   * @param guildID The guild id
+   * @param roleID The role id
+   */
+  async removeRole(discordID: string, guildID:string, roleID: string) {
+    const guild = await this.client.guilds.fetch(guildID);
+    const member = await guild.members.fetch(discordID);
+    const roleToRemove = guild.roles.cache.find((r) => r.id === roleID);
+    if (roleToRemove) {
+      return await member.roles.remove(roleToRemove);
+    }
+  }
+
 }
