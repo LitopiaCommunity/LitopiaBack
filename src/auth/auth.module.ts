@@ -5,9 +5,11 @@ import { DiscordStrategy } from "./utils/discord.stretegie";
 import { ConfigModule } from "@nestjs/config";
 import { UsersModule } from "../models/users/users.module";
 import { SessionSerializer } from "./utils/session.serializer";
+import { BotFunctionModule } from "../bot/utils/bot.function.module";
 
 @Module({
   imports:[
+    BotFunctionModule,
     ConfigModule,
     UsersModule
   ],

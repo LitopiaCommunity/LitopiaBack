@@ -2,12 +2,13 @@ import { Injectable, Logger } from "@nestjs/common";
 import { AuthenticationTypes, UserDetails } from "../utils/authentication.types";
 import { UserEntity, UserRole } from "../../models/users/user.entity";
 import { UsersService } from "../../models/users/users.service";
+import { BotUtilityService } from "../../bot/utils/bot-utility.service";
 
 @Injectable()
 export class AuthService implements AuthenticationTypes{
   private readonly logger = new Logger(AuthService.name);
 
-  constructor(private usersService:UsersService) {
+  constructor(private usersService:UsersService, private botUtils:BotUtilityService) {
   }
   async createUser(details: UserDetails) : Promise<UserEntity> {
     this.logger.log("Auth will create " + details.username)
@@ -43,6 +44,7 @@ export class AuthService implements AuthenticationTypes{
       await this.usersService.update(discordId,newUser)
       return newUser
     }
+    await this.botUtils.automaticallyConnectUserToDiscordServer(details);
     return this.createUser(details);
   }
 }

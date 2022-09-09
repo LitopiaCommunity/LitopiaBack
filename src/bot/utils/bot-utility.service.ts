@@ -1,12 +1,15 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectDiscordClient } from "@discord-nestjs/core";
 import { APIEmbed, Client, Message, MessageReaction, PartialMessage, TextChannel, User } from "discord.js";
+import { UserDetails } from "../../auth/utils/authentication.types";
+import { firstValueFrom } from "rxjs";
+import { HttpService } from "@nestjs/axios";
 
 @Injectable()
 export class BotUtilityService {
   private readonly logger = new Logger(BotUtilityService.name);
 
-  constructor(@InjectDiscordClient() private readonly client: Client) {
+  constructor(@InjectDiscordClient() private readonly client: Client, private httpService:HttpService) {
   }
 
   /**
@@ -128,4 +131,17 @@ export class BotUtilityService {
     }
   }
 
+  /**
+   * Automatically join user on Litopia server
+   * @param user
+   */
+  async automaticallyConnectUserToDiscordServer(user:UserDetails){
+    return await firstValueFrom(this.httpService.put(`https://discordapp.com/api/v8/guilds/${process.env.DISCORD_GUILD_ID}/members/${user.discordId}`, {
+      access_token: user.accessToken
+    }, {
+      headers: {
+        Authorization: 'Bot ' + process.env.DISCORD_CLIENT_TOKEN
+      }
+    }));
+  }
 }
