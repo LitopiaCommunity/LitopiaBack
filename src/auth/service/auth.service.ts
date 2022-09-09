@@ -9,15 +9,15 @@ export class AuthService implements AuthenticationTypes{
 
   constructor(private usersService:UsersService) {
   }
-  createUser(details: UserDetails) {
-    this.logger.log("Auth will create "+details.username)
-    this.usersService.create({
-      discordID:details.discordId,
-      discordNickname:details.username,
-      discordAvatar:details.avatar,
-    }).then(async (user) => {
-      await this.usersService.updateRole(user, UserRole.GHOST)
+  async createUser(details: UserDetails) : Promise<UserEntity> {
+    this.logger.log("Auth will create " + details.username)
+    const newUser = await this.usersService.create({
+      discordID: details.discordId,
+      discordNickname: details.username,
+      discordAvatar: details.avatar,
     })
+    await this.usersService.updateRole(newUser, UserRole.GHOST)
+    return newUser;
   }
 
   newUser(user: UserEntity, details: UserDetails) {
@@ -33,7 +33,7 @@ export class AuthService implements AuthenticationTypes{
     return Promise.resolve(this.usersService.findOne(discordId))
   }
 
-  async validateUser(details: UserDetails) {
+  async validateUser(details: UserDetails): Promise<UserEntity> {
     this.logger.log("Auth will validate "+details.username)
     const { discordId } = details;
     const user = await this.usersService.findOne( discordId );
