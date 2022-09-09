@@ -15,7 +15,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
       clientID: configService.get<string>('DISCORD_CLIENT_ID'),
       clientSecret: configService.get<string>('DISCORD_CLIENT_SECRET'),
       callbackURL: configService.get<string>('DISCORD_CALLBACK_URL'),
-      scope: ['identify', 'guilds','guilds.join'],
+      scope: ['identify','guilds.join'],
     });
   }
 
