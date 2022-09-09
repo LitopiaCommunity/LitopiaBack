@@ -122,7 +122,7 @@ export class UserEntity {
     minLength: 1024,
     maxLength: 4096
   })
-  @Column({length:4096,nullable:true})
+  @Column({nullable:true,type:"text"})
   candidature: string;
 
   @Column({nullable:true,length:32})
