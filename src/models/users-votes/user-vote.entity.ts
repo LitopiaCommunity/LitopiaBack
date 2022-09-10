@@ -13,7 +13,7 @@ export class UserVoteEntity {
   voterID: string;
 
   @PrimaryColumn({type:"character varying",length:18})
-  votedForID: number;
+  votedForID: string;
 
   /**
    * The user who vote
