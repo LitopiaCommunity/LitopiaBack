@@ -175,7 +175,6 @@ export class UsersVotesService {
       UserRole.LITOGOD,
       UserRole.ACTIVE_LITOPIEN,
       UserRole.LITOPIEN,
-      UserRole.INACTIVE_LITOPIEN,
       UserRole.PRETOPIEN
     ]);
     return Math.ceil(nbMember * 0.35);

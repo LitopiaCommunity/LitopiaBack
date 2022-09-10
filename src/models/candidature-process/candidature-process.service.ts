@@ -182,8 +182,8 @@ export class CandidatureProcessService {
         },
         {
           name: "Votes",
-          value: `**${promiseResolve[2]}** 👍 / **${promiseResolve[3]}** 👎 / **${promiseResolve[4]}** 🤷`,
-          inline: false
+          value: `**${promiseResolve[2]}** 👍 / **${promiseResolve[3]}** 👎 / **${promiseResolve[4]}** 🤷 / **${promiseResolve[2] + promiseResolve[3] + promiseResolve[4]}** ✉`,
+          inline: true
         }
       ]
     };
