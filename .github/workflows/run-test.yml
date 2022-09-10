@@ -26,7 +26,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm install rimraf -g
     - run: npm run build
     - run: npm test
     - run: npm test:dov
