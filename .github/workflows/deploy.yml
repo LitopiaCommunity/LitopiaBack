@@ -20,30 +20,31 @@ jobs:
           script: |
             echo "Deploying to production server..."
             cd ${{ secrets.DEPLOY_PATH }}
+            rm .env
             echo "Register environment variables..."
-            export PRODUCTION=true
-            export APP_PORT=${{ secrets.APP_PORT }}
-            export DATABASE_HOST=${{ secrets.DATABASE_HOST }}
-            export DATABASE_PORT=${{ secrets.DATABASE_PORT }}
-            export DATABASE_USER=${{ secrets.DATABASE_USER }}
-            export DATABASE_PASS=${{ secrets.DATABASE_PASS }}
-            export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-            export DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
-            export DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
-            export DISCORD_CLIENT_TOKEN=${{ secrets.DISCORD_CLIENT_TOKEN }}
-            export DISCORD_CALLBACK_URL=${{ secrets.DISCORD_CALLBACK_URL }}
-            export DISCORD_CANDIDATURE_CHANNEL_ID=${{ secrets.DISCORD_CANDIDATURE_CHANNEL_ID }}
-            export DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }}
-            export DISCORD_ROLE_GHOST=${{ secrets.DISCORD_ROLE_GHOST }}
-            export DISCORD_ROLE_CANDIDATE=${{ secrets.DISCORD_ROLE_CANDIDATE }}
-            export DISCORD_ROLE_PRE_ACCEPTED=${{ secrets.DISCORD_ROLE_PRE_ACCEPTED }}
-            export DISCORD_ROLE_PRETOPIEN=${{ secrets.DISCORD_ROLE_PRETOPIEN }}
-            export DISCORD_ROLE_LITOPIEN=${{ secrets.DISCORD_ROLE_LITOPIEN }}
-            export DISCORD_ROLE_ACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_ACTIVE_LITOPIEN }}
-            export DISCORD_ROLE_INACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_INACTIVE_LITOPIEN }}
-            export DISCORD_ROLE_REFUSED=${{ secrets.DISCORD_ROLE_REFUSED }}
-            export DISCORD_ROLE_LITOGOD=${{ secrets.DISCORD_ROLE_LITOGOD }}
-            export DISCORD_ROLE_UNIQUE_GOD=${{ secrets.DISCORD_ROLE_UNIQUE_GOD }}
+            echo PRODUCTION=true
+            echo APP_PORT=${{ secrets.APP_PORT }} >> .env
+            echo DATABASE_HOST=${{ secrets.DATABASE_HOST }} >> .env
+            echo DATABASE_PORT=${{ secrets.DATABASE_PORT }} >> .env
+            echo DATABASE_USER=${{ secrets.DATABASE_USER }} >> .env
+            echo DATABASE_PASS=${{ secrets.DATABASE_PASS }} >> .env 
+            echo DATABASE_NAME=${{ secrets.DATABASE_NAME }} >> .env
+            echo DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }} >> .env
+            echo DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }} >> .env
+            echo DISCORD_CLIENT_TOKEN=${{ secrets.DISCORD_CLIENT_TOKEN }} >> .env
+            echo DISCORD_CALLBACK_URL=${{ secrets.DISCORD_CALLBACK_URL }} >> .env
+            echo DISCORD_CANDIDATURE_CHANNEL_ID=${{ secrets.DISCORD_CANDIDATURE_CHANNEL_ID }} >> .env
+            echo DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }} >> .env
+            echo DISCORD_ROLE_GHOST=${{ secrets.DISCORD_ROLE_GHOST }} >> .env
+            echo DISCORD_ROLE_CANDIDATE=${{ secrets.DISCORD_ROLE_CANDIDATE }} >> .env
+            echo DISCORD_ROLE_PRE_ACCEPTED=${{ secrets.DISCORD_ROLE_PRE_ACCEPTED }} >> .env
+            echo DISCORD_ROLE_PRETOPIEN=${{ secrets.DISCORD_ROLE_PRETOPIEN }} >> .env
+            echo DISCORD_ROLE_LITOPIEN=${{ secrets.DISCORD_ROLE_LITOPIEN }} >> .env
+            echo DISCORD_ROLE_ACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_ACTIVE_LITOPIEN }} >> .env
+            echo DISCORD_ROLE_INACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_INACTIVE_LITOPIEN }} >> .env
+            echo DISCORD_ROLE_REFUSED=${{ secrets.DISCORD_ROLE_REFUSED }} >> .env
+            echo DISCORD_ROLE_LITOGOD=${{ secrets.DISCORD_ROLE_LITOGOD }} >> .env
+            echo DISCORD_ROLE_UNIQUE_GOD=${{ secrets.DISCORD_ROLE_UNIQUE_GOD }} >> .env
             echo "Pulling latest changes..."
             git pull
             echo "Installing dependencies..."
