@@ -12,41 +12,44 @@ jobs:
     steps:
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
-        env:
-          PRODUCTION: true
-          APP_PORT: ${{ secrets.APP_PORT }}
-          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          DATABASE_USER: ${{ secrets.DATABASE_USER }}
-          DATABASE_PASS: ${{ secrets.DATABASE_PASS }}
-          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
-          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          DISCORD_CLIENT_TOKEN: ${{ secrets.DISCORD_CLIENT_TOKEN }}
-          DISCORD_CALLBACK_URL: ${{ secrets.DISCORD_CALLBACK_URL }}
-          DISCORD_CANDIDATURE_CHANNEL_ID: ${{ secrets.DISCORD_CANDIDATURE_CHANNEL_ID }}
-          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
-          DISCORD_ROLE_GHOST: ${{ secrets.DISCORD_ROLE_GHOST }}
-          DISCORD_ROLE_CANDIDATE: ${{ secrets.DISCORD_ROLE_CANDIDATE }}
-          DISCORD_ROLE_PRE_ACCEPTED: ${{ secrets.DISCORD_ROLE_PRE_ACCEPTED }}
-          DISCORD_ROLE_PRETOPIEN: ${{ secrets.DISCORD_ROLE_PRETOPIEN }}
-          DISCORD_ROLE_LITOPIEN: ${{ secrets.DISCORD_ROLE_LITOPIEN }}
-          DISCORD_ROLE_ACTIVE_LITOPIEN: ${{ secrets.DISCORD_ROLE_ACTIVE_LITOPIEN }}
-          DISCORD_ROLE_INACTIVE_LITOPIEN: ${{ secrets.DISCORD_ROLE_INACTIVE_LITOPIEN }}
-          DISCORD_ROLE_REFUSED: ${{ secrets.DISCORD_ROLE_REFUSED }}
-          DISCORD_ROLE_LITOGOD: ${{ secrets.DISCORD_ROLE_LITOGOD }}
-          DISCORD_ROLE_UNIQUE_GOD: ${{ secrets.DISCORD_ROLE_UNIQUE_GOD }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          envs: PRODUCTION,APP_PORT,DATABASE_HOST,DATABASE_PORT,DATABASE_USER,DATABASE_PASS,DATABASE_NAME,DISCORD_CLIENT_ID,DISCORD_CLIENT_SECRET,DISCORD_CLIENT_TOKEN,DISCORD_CALLBACK_URL,DISCORD_CANDIDATURE_CHANNEL_ID,DISCORD_GUILD_ID,DISCORD_ROLE_GHOST,DISCORD_ROLE_CANDIDATE,DISCORD_ROLE_PRE_ACCEPTED,DISCORD_ROLE_PRETOPIEN,DISCORD_ROLE_LITOPIEN,DISCORD_ROLE_ACTIVE_LITOPIEN,DISCORD_ROLE_INACTIVE_LITOPIEN,DISCORD_ROLE_REFUSED,DISCORD_ROLE_LITOGOD,DISCORD_ROLE_UNIQUE_GOD
           script: |
-            echo "Server listen on $APP_PORT"
+            echo "Deploying to production server..."
             cd ${{ secrets.DEPLOY_PATH }}
+            echo "Register environment variables..."
+            export PRODUCTION=true
+            export APP_PORT=${{ secrets.APP_PORT }}
+            export DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+            export DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+            export DATABASE_USER=${{ secrets.DATABASE_USER }}
+            export DATABASE_PASS=${{ secrets.DATABASE_PASS }}
+            export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            export DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
+            export DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
+            export DISCORD_CLIENT_TOKEN=${{ secrets.DISCORD_CLIENT_TOKEN }}
+            export DISCORD_CALLBACK_URL=${{ secrets.DISCORD_CALLBACK_URL }}
+            export DISCORD_CANDIDATURE_CHANNEL_ID=${{ secrets.DISCORD_CANDIDATURE_CHANNEL_ID }}
+            export DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }}
+            export DISCORD_ROLE_GHOST=${{ secrets.DISCORD_ROLE_GHOST }}
+            export DISCORD_ROLE_CANDIDATE=${{ secrets.DISCORD_ROLE_CANDIDATE }}
+            export DISCORD_ROLE_PRE_ACCEPTED=${{ secrets.DISCORD_ROLE_PRE_ACCEPTED }}
+            export DISCORD_ROLE_PRETOPIEN=${{ secrets.DISCORD_ROLE_PRETOPIEN }}
+            export DISCORD_ROLE_LITOPIEN=${{ secrets.DISCORD_ROLE_LITOPIEN }}
+            export DISCORD_ROLE_ACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_ACTIVE_LITOPIEN }}
+            export DISCORD_ROLE_INACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_INACTIVE_LITOPIEN }}
+            export DISCORD_ROLE_REFUSED=${{ secrets.DISCORD_ROLE_REFUSED }}
+            export DISCORD_ROLE_LITOGOD=${{ secrets.DISCORD_ROLE_LITOGOD }}
+            export DISCORD_ROLE_UNIQUE_GOD=${{ secrets.DISCORD_ROLE_UNIQUE_GOD }}
+            echo "Pulling latest changes..."
             git pull
+            echo "Installing dependencies..."
             npm install
+            echo "Building..."
             npm run build
+            echo "Restarting server..."
             npm run pm2:stop
             npm run pm2:start
