@@ -227,7 +227,7 @@ export class UsersVotesService {
       UserRole.LITOPIEN,
       UserRole.PRETOPIEN
     ]);
-    return Math.ceil(nbMember * 0.35);
+    return Math.ceil(nbMember * 0.15);
   }
 
   /**
