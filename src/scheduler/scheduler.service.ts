@@ -43,7 +43,7 @@ export class SchedulerService {
         return;
       }else if (moment().diff(lastUpdate,'days')<4){
         this.userService.updateRole(user,UserRole.ACTIVE_LITOPIEN);
-        this.logger.log(user.discordNickname+" is now a an active Litopien");
+        this.logger.log(user.discordNickname+" is now an active Litopien");
         return;
       }else if (moment().diff(lastUpdate,'days')>7){
         this.userService.updateRole(user,UserRole.LITOPIEN);

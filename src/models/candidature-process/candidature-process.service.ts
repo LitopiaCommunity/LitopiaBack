@@ -215,11 +215,14 @@ export class CandidatureProcessService {
         //try to vote await need cause vote has side effect and we need to wait for it
         await this.usersVotesService.vote(userWhoVote, userWhoIsCandidat, voteType);
 
+        userWhoVote.updatedAt = new Date();
+
         // update the message with new votes
         await Promise.all([
           this.updateCandidatureMessage(userWhoIsCandidat),
           this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`),
-          this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name)
+          this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name),
+          this.userService.update(userWhoVote.discordID,user)
           ]);
         this.logger.log(`Vote ${voteType} for ${userWhoIsCandidat.discordNickname} by ${userWhoVote.discordNickname}`);
       } catch (e) {
