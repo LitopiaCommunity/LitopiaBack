@@ -37,9 +37,9 @@ export enum UserRole {
   // When the candidate is in the server for more than 1 month
   LITOPIEN = "litopien",
   // When player is active on the server (more than 4h per week discord or minecraft)
-  ACTIVE_LITOPIEN = "active litopien",
+  ACTIVE_LITOPIEN = "active-litopien",
   // When player is inactive on the server (less than 4h per month discord or minecraft)
-  INACTIVE_LITOPIEN = "inactive litopien",
+  INACTIVE_LITOPIEN = "inactive-litopien",
 
   //-------------------//
   // Utilitarian roles //
@@ -52,7 +52,12 @@ export enum UserRole {
   // Honorary roles //
   //----------------//
   LITOGOD = "litogod", // Managers of the server
-  UNIQUE_GOD = "unique god", // Founders of the server (the two louis)
+  UNIQUE_GOD = "unique-god", // Founders of the server (the two louis)
+}
+
+export class UserRolesDTO{
+  @ApiProperty({ enum: UserRole, enumName: 'UserRole', isArray: true })
+  roles: UserRole[];
 }
 
 @Entity()
