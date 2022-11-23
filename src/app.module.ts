@@ -15,9 +15,12 @@ import { DiscordModule } from "@discord-nestjs/core";
 import { GatewayIntentBits } from 'discord.js';
 import { BotModule } from "./bot/src/bot.module";
 import { BotFunctionModule } from "./bot/utils/bot.function.module";
+import { ScheduleModule } from "@nestjs/schedule";
+import { LitopiaSchedulerModule } from "./scheduler/litopia-scheduler.module";
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     PassportModule.register({session:true}),
     TypeOrmModule.forRootAsync({
@@ -49,6 +52,7 @@ import { BotFunctionModule } from "./bot/utils/bot.function.module";
             GatewayIntentBits.GuildMembers,
             GatewayIntentBits.DirectMessages,
             GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildVoiceStates,
           ]
         }
       })
@@ -60,7 +64,8 @@ import { BotFunctionModule } from "./bot/utils/bot.function.module";
     MinecraftUsersModule,
     MinecraftApiModule,
     AuthModule,
-    SessionsModule
+    SessionsModule,
+    LitopiaSchedulerModule
   ],
   controllers: [AppController],
   providers: [AppService],
