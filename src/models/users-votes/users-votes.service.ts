@@ -167,6 +167,56 @@ export class UsersVotesService {
   }
 
   /**
+   * Get number of votes for a user
+   * @param user the user to check
+   * @param voteType the vote type to check
+   */
+  async getNumberOfVotesFromVoter(user: UserEntity, voteType: VoteType) {
+    return this.userVotesRepository.createQueryBuilder("userVote")
+      .where("userVote.voterID = :user", { user: user.discordID })
+      .andWhere("userVote.vote = :voteType", { voteType })
+      .getCount();
+  }
+
+  /**
+   * Get vote of a user to user that are candidate
+   * @param user the user to check
+   */
+  async getVoteFromUserToUserThatAreCandidate(user: UserEntity) {
+    return this.userVotesRepository.find({
+      relations: ["votedFor"],
+      where: {
+        voterID: user.discordID,
+        votedFor: {
+          role: UserRole.CANDIDATE
+        }
+      },
+      order:{
+        vote: "desc",
+      }
+    });
+  }
+
+  /**
+   * Get list of user that have vote for a user
+   * @param user the user to check
+   */
+  async getListOfUserThatHaveVoteForUser(user: UserEntity) {
+    return this.userVotesRepository.find({
+      relations: ["voter"],
+      where: {
+        votedForID: user.discordID,
+      },
+      order: {
+        vote: "asc",
+        voter: {
+          discordNickname: "asc"
+        }
+      }
+    });
+  }
+
+  /**
    * Get required number of votes for a user
    */
   async getRequiredNumberOfVotes() {
@@ -175,10 +225,9 @@ export class UsersVotesService {
       UserRole.LITOGOD,
       UserRole.ACTIVE_LITOPIEN,
       UserRole.LITOPIEN,
-      UserRole.INACTIVE_LITOPIEN,
       UserRole.PRETOPIEN
     ]);
-    return Math.ceil(nbMember * 0.35);
+    return Math.ceil(nbMember * 0.15);
   }
 
   /**

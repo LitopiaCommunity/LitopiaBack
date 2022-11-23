@@ -1,0 +1,56 @@
+name: CI to production server
+on:
+  workflow_run:
+    workflows: Tests and builds app
+    branches: main
+    types: completed
+jobs:
+  deploy:
+    # check if the previous job was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            echo "Deploying to production server..."
+            cd ${{ secrets.DEPLOY_PATH }}
+            rm .env
+            echo "Register environment variables..."
+            echo PRODUCTION=true
+            echo APP_PORT=${{ secrets.APP_PORT }} >> .env
+            echo DATABASE_HOST=${{ secrets.DATABASE_HOST }} >> .env
+            echo DATABASE_PORT=${{ secrets.DATABASE_PORT }} >> .env
+            echo DATABASE_USER=${{ secrets.DATABASE_USER }} >> .env
+            echo DATABASE_PASS=${{ secrets.DATABASE_PASS }} >> .env 
+            echo DATABASE_NAME=${{ secrets.DATABASE_NAME }} >> .env
+            echo DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }} >> .env
+            echo DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }} >> .env
+            echo DISCORD_CLIENT_TOKEN=${{ secrets.DISCORD_CLIENT_TOKEN }} >> .env
+            echo DISCORD_CALLBACK_URL=${{ secrets.DISCORD_CALLBACK_URL }} >> .env
+            echo DISCORD_CANDIDATURE_CHANNEL_ID=${{ secrets.DISCORD_CANDIDATURE_CHANNEL_ID }} >> .env
+            echo DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }} >> .env
+            echo DISCORD_ROLE_GHOST=${{ secrets.DISCORD_ROLE_GHOST }} >> .env
+            echo DISCORD_ROLE_CANDIDATE=${{ secrets.DISCORD_ROLE_CANDIDATE }} >> .env
+            echo DISCORD_ROLE_PRE_ACCEPTED=${{ secrets.DISCORD_ROLE_PRE_ACCEPTED }} >> .env
+            echo DISCORD_ROLE_PRETOPIEN=${{ secrets.DISCORD_ROLE_PRETOPIEN }} >> .env
+            echo DISCORD_ROLE_LITOPIEN=${{ secrets.DISCORD_ROLE_LITOPIEN }} >> .env
+            echo DISCORD_ROLE_ACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_ACTIVE_LITOPIEN }} >> .env
+            echo DISCORD_ROLE_INACTIVE_LITOPIEN=${{ secrets.DISCORD_ROLE_INACTIVE_LITOPIEN }} >> .env
+            echo DISCORD_ROLE_REFUSED=${{ secrets.DISCORD_ROLE_REFUSED }} >> .env
+            echo DISCORD_ROLE_LITOGOD=${{ secrets.DISCORD_ROLE_LITOGOD }} >> .env
+            echo DISCORD_ROLE_UNIQUE_GOD=${{ secrets.DISCORD_ROLE_UNIQUE_GOD }} >> .env
+            echo "Pulling latest changes..."
+            git pull
+            echo "Installing dependencies..."
+            npm install
+            echo "Building..."
+            npm run build
+            echo "Restarting server..."
+            npm run pm2:stop
+            npm run pm2:start
