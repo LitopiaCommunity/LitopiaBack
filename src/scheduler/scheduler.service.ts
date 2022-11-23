@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { UsersService } from "../models/users/users.service";
 import { UserEntity, UserRole } from "../models/users/user.entity";
 import * as moment from "moment";
@@ -11,7 +11,7 @@ export class SchedulerService {
   constructor(private userService:UsersService) {
   }
 
-  @Cron("19 22 * * *")
+  @Cron(CronExpression.EVERY_DAY_AT_10PM)
   async dailyAction(){
     await this.updatePretopien();
     await this.updateLitopien();
@@ -39,14 +39,17 @@ export class SchedulerService {
       const lastUpdate = moment(user.updatedAt)
       if (moment().diff(lastUpdate,'month')>=1){
         this.logger.log(user.discordNickname+" is now a an inactive Litopien");
-        this.userService.updateRole(user,UserRole.INACTIVE_LITOPIEN);
+        if (user.role!==UserRole.INACTIVE_LITOPIEN)
+          this.userService.updateRole(user,UserRole.INACTIVE_LITOPIEN);
         return;
       }else if (moment().diff(lastUpdate,'days')<4){
-        this.userService.updateRole(user,UserRole.ACTIVE_LITOPIEN);
+        if (user.role!==UserRole.ACTIVE_LITOPIEN)
+          this.userService.updateRole(user,UserRole.ACTIVE_LITOPIEN);
         this.logger.log(user.discordNickname+" is now an active Litopien");
         return;
       }else if (moment().diff(lastUpdate,'days')>7){
-        this.userService.updateRole(user,UserRole.LITOPIEN);
+        if (user.role!==UserRole.LITOPIEN)
+          this.userService.updateRole(user,UserRole.LITOPIEN);
         this.logger.log(user.discordNickname+" is now a an regular Litopien");
         return;
       }
