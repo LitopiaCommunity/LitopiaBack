@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Cron } from "@nestjs/schedule";
 import { UsersService } from "../models/users/users.service";
 import { UserEntity, UserRole } from "../models/users/user.entity";
 import * as moment from "moment";
@@ -11,7 +11,7 @@ export class SchedulerService {
   constructor(private userService:UsersService) {
   }
 
-  @Cron("14 22 * * *")
+  @Cron("19 22 * * *")
   async dailyAction(){
     await this.updatePretopien();
     await this.updateLitopien();
@@ -33,7 +33,7 @@ export class SchedulerService {
   }
 
   async updateLitopien(){
-    const userList = await this.userService.getAllUsersWithRoles([UserRole.LITOPIEN,UserRole.ACTIVE_LITOPIEN])
+    const userList = await this.userService.getAllUsersWithRoles([UserRole.LITOPIEN,UserRole.ACTIVE_LITOPIEN,UserRole.INACTIVE_LITOPIEN])
     this.logger.log("SCHEDULE TASK IS RUNNING TO UPDATE "+userList.length+" LITOPIEN")
     userList.forEach((user:UserEntity)=>{
       const lastUpdate = moment(user.updatedAt)
