@@ -11,7 +11,7 @@ export class SchedulerService {
   constructor(private userService:UsersService) {
   }
 
-  @Cron("8 22 * * *")
+  @Cron("14 22 * * *")
   async dailyAction(){
     await this.updatePretopien();
     await this.updateLitopien();
