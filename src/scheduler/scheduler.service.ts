@@ -37,16 +37,18 @@ export class SchedulerService {
     this.logger.log("SCHEDULE TASK IS RUNNING TO UPDATE "+userList.length+" LITOPIEN")
     userList.forEach((user:UserEntity)=>{
       const lastUpdate = moment(user.updatedAt)
-      if (moment().diff(lastUpdate,'days')>=7){
+      if (moment().diff(lastUpdate,'month')>=1){
         this.logger.log(user.discordNickname+" is now a an inactive Litopien");
         this.userService.updateRole(user,UserRole.INACTIVE_LITOPIEN);
-      }
-      if (moment().diff(lastUpdate,'days')<2){
+        return;
+      }else if (moment().diff(lastUpdate,'days')<4){
         this.userService.updateRole(user,UserRole.ACTIVE_LITOPIEN);
         this.logger.log(user.discordNickname+" is now a an active Litopien");
-      }else if (moment().diff(lastUpdate,'days')<7){
+        return;
+      }else if (moment().diff(lastUpdate,'days')>7){
         this.userService.updateRole(user,UserRole.LITOPIEN);
         this.logger.log(user.discordNickname+" is now a an regular Litopien");
+        return;
       }
     })
   }
