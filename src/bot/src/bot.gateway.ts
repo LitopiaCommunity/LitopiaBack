@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { InjectDiscordClient, Once } from "@discord-nestjs/core";
-import { Client } from "discord.js";
+import { InjectDiscordClient, On, Once } from "@discord-nestjs/core";
+import { Client, Message, VoiceState } from "discord.js";
 import { UsersService } from "../../models/users/users.service";
 import { CandidatureProcessService } from "../../models/candidature-process/candidature-process.service";
 import { UserRole } from "../../models/users/user.entity";
@@ -24,4 +24,27 @@ export class BotGateway {
       await this.candidatureProcessService.registerEmojiReactionCalback(user.candidatureDiscordMessageID,user)
     }
   }
+
+  @On('messageCreate')
+  async onMessage(message: Message): Promise<void> {
+    if (message.author.bot)return;
+    this.logger.log(`Incoming message from ${message.author.username}`);
+    await this.updateUser(message.author.id)
+  }
+
+  @On('voiceStateUpdate')
+  async onVoiceChanelJoin(oldState:VoiceState, _newState:VoiceState){
+    if (oldState.member.user.bot) return;
+    this.logger.log(`Voice connexion from ${oldState.member.user.username}`);
+    await this.updateUser(oldState.member.user.id)
+  }
+
+  async updateUser(userId) {
+    const user = await this.usersService.findOne(userId);
+    if (user !== null) {
+      user.updatedAt = new Date();
+      await this.usersService.update(user.discordID, user);
+    }
+  }
+
 }
