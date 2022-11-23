@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { UsersService } from "../models/users/users.service";
 import { UserEntity, UserRole } from "../models/users/user.entity";
-import moment from "moment";
+import * as moment from "moment";
 
 @Injectable()
 export class SchedulerService {
@@ -11,7 +11,7 @@ export class SchedulerService {
   constructor(private userService:UsersService) {
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_10PM)
+  @Cron("5 22 * * *")
   async dailyAction(){
     await this.updatePretopien();
     await this.updateLitopien();
