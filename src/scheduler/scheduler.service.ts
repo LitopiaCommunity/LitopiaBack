@@ -11,7 +11,7 @@ export class SchedulerService {
   constructor(private userService:UsersService) {
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_10PM)
+  @Cron("30 22 * * *")
   async dailyAction(){
     await this.updatePretopien();
     await this.updateLitopien();
@@ -20,16 +20,16 @@ export class SchedulerService {
   async updatePretopien(){
     const userList = await this.userService.getAllUsersWithRoles([UserRole.PRETOPIEN])
     this.logger.log("SCHEDULE TASK IS RUNNING TO UPDATE "+userList.length+" PRETOPIEN")
-    userList.forEach((user:UserEntity)=>{
+    for (const user of userList) {
       const acceptedAt = moment(user.candidatureAcceptedAt)
       const lastUpdate = moment(user.updatedAt)
       //We can pass pretopien to litopien if member has been active in the last 7 day
       //and is in the server for more than 1 month
       if (moment().diff(acceptedAt,'months')>1 && moment().diff(lastUpdate,'days')<7){
-        this.userService.updateRole(user,UserRole.LITOPIEN);
+        await this.userService.updateRole(user,UserRole.LITOPIEN);
         this.logger.log(user.discordNickname+" is now a real Litopien");
       }
-    })
+    }
   }
 
   async updateLitopien(){
@@ -39,16 +39,16 @@ export class SchedulerService {
       const lastUpdate = moment(user.updatedAt)
       if (moment().diff(lastUpdate,'month')>=1){
         this.logger.log(user.discordNickname+" is now a an inactive Litopien");
-        if (user.role!==UserRole.INACTIVE_LITOPIEN)
+        //if (user.role!==UserRole.INACTIVE_LITOPIEN)
           this.userService.updateRole(user,UserRole.INACTIVE_LITOPIEN);
         return;
       }else if (moment().diff(lastUpdate,'days')<4){
-        if (user.role!==UserRole.ACTIVE_LITOPIEN)
+        //if (user.role!==UserRole.ACTIVE_LITOPIEN)
           this.userService.updateRole(user,UserRole.ACTIVE_LITOPIEN);
         this.logger.log(user.discordNickname+" is now an active Litopien");
         return;
       }else if (moment().diff(lastUpdate,'days')>7){
-        if (user.role!==UserRole.LITOPIEN)
+        //if (user.role!==UserRole.LITOPIEN)
           this.userService.updateRole(user,UserRole.LITOPIEN);
         this.logger.log(user.discordNickname+" is now a an regular Litopien");
         return;
