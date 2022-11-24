@@ -42,7 +42,7 @@ export class BotGateway {
   async updateUser(userId) {
     const user = await this.usersService.findOne(userId);
     if (user !== null) {
-      user.updatedAt = new Date();
+      user.lastActivity = new Date();
       await this.usersService.update(user.discordID, user);
     }
   }

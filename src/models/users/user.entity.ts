@@ -141,6 +141,10 @@ export class UserEntity {
   @Column({nullable:true})
   candidatureAcceptedAt:Date;
 
+  @ApiProperty()
+  @Column('date', { default: () => '(CURRENT_DATE)' , nullable:false})
+  lastActivity: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 
