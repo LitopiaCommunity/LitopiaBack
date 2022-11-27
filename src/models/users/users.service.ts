@@ -120,19 +120,24 @@ export class UsersService {
         break;
       case UserRole.LITOPIEN:
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRETOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_INACTIVE_LITOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_ACTIVE_LITOPIEN);
         break;
       case UserRole.ACTIVE_LITOPIEN:
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_INACTIVE_LITOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRETOPIEN);
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN);
         break;
       case UserRole.INACTIVE_LITOPIEN:
-        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN)
-        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_ACTIVE_LITOPIEN)
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRETOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_ACTIVE_LITOPIEN);
         break;
       case UserRole.REFUSED:
-        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRE_ACCEPTED)
-        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN)
-        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_CANDIDATE)
-        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_GHOST)
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRE_ACCEPTED);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_LITOPIEN);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_CANDIDATE);
+        await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_GHOST);
         break;
     }
 
