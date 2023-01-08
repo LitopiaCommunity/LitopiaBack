@@ -79,7 +79,7 @@ export class CandidatureProcessService {
 
     this.sendMessageToUser(newUser.discordID)
       .then(()=>this.logger.log("Confirmation candidature message send to "+newUser.discordNickname))
-      .catch(e=>this.logger.error(e));
+      .catch(e=>this.logger.error("Error while trying to send confirmation "+newUser.discordNickname+" with error :"+e));
 
     const createdUser = await this.userService.create(newUser);
 
@@ -222,7 +222,7 @@ export class CandidatureProcessService {
           this.updateCandidatureMessage(userWhoIsCandidat),
           this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`),
           this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name),
-          this.userService.update(userWhoVote.discordID,user)
+          this.userService.update(userWhoVote.discordID, { discordNickname:user.username,discordAvatar:user.avatar })
           ]);
         this.logger.log(`Vote ${voteType} for ${userWhoIsCandidat.discordNickname} by ${userWhoVote.discordNickname}`);
       } catch (e) {
