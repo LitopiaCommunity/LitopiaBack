@@ -38,7 +38,7 @@ export class UsersVotesService {
     }
 
     // check if the user can't vote
-    if ([UserRole.CANDIDATE, UserRole.PRE_ACCEPTED, UserRole.BAN, UserRole.GHOST, UserRole.REFUSED].includes(userWhoVote.role)) {
+    if ([UserRole.CANDIDATE, UserRole.PRE_ACCEPTED,UserRole.PRETOPIEN, UserRole.BAN, UserRole.GHOST, UserRole.REFUSED].includes(userWhoVote.role)) {
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_VOTE));
     }
     this.logger.log(`User ${userWhoVote.discordID} vote ${voteType} for ${userWhoWasVote.discordID}`);
