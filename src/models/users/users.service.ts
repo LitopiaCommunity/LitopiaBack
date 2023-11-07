@@ -117,6 +117,7 @@ export class UsersService {
         break;
       case UserRole.PRETOPIEN:
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRE_ACCEPTED);
+        await this.botService.addRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_TRIAL);
         break;
       case UserRole.LITOPIEN:
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRETOPIEN);

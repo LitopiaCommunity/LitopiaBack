@@ -253,13 +253,12 @@ export class UsersVotesService {
   private async notifyUsers(user: UserEntity, accepted: boolean) {
     await this.botUtils.sendPrivateMessage(user.discordID,
       accepted ?
-        `Félicitation, les Litopien on voté pour t'accepter sur le serveur Litopia ! 
-Cependant le processus de candidature n'est pas encore fini tu doit passer un entretient avec les Litodieux. 
-Nous allons te contacter pochainement pour passer ton entretient vocal` :
+        `Félicitations, les Litopiens ont voté pour t'accepter sur le serveur Litopia ! 
+Tu es maintenant en période d'essai pour 15 jours reconductibles, tu seras ajouter à la whitelist sous peu.` :
 `Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
     );
     await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID,
-      `Vous avez ${accepted ? 'accepté' : 'refusé'} <@${user.discordID}> ${accepted ? " ! Il doit maintenant passer un entretient avec les modérateurs" : ". Dommage !"}`
+      `Vous avez ${accepted ? 'accepté' : 'refusé'} <@${user.discordID}> ${accepted ? " ! Il doit maintenant passer sa période d'essai de 15 jours." : ". Il/elle peut reproposer une nouvelle candidature, plus élaborée s'il/elle le souhaite. !"}`
     );
   }
 }
