@@ -39,4 +39,18 @@ export class UsersController {
     }
     return this.usersService.getAllUsersWithRoles(userRoles.userRoles)
   }
+
+  @Get('by-nickname')
+  @ApiQuery({
+    name:'nickname',
+    required:true
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User is loaded',
+    type:UserEntity
+  })
+  async getUserByNickname(@Query()minecraftPseudo:{nickname:string}): Promise<UserEntity>{
+    return this.usersService.getUserByNickname(minecraftPseudo.nickname)
+  }
 }

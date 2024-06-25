@@ -180,4 +180,14 @@ export class UsersService {
   async getAllUsersWithRoles(roles: UserRole[]): Promise<UserEntity[]> {
     return await this.usersRepository.find({ where: { role: In(roles) }, relations: ["minecraftUser"] });
   }
+
+  /**
+   * Get a user by his minecraft pseudo
+   * @param minecraftNickname string
+   */
+  async getUserByNickname(minecraftNickname: string): Promise<UserEntity> {
+    // le wehere se trouve dans munecraftUser.minecrafPseudo car c'est le nom de la colonne dans la table minecraftUser
+    return await this.usersRepository.createQueryBuilder("user").leftJoinAndSelect("user.minecraftUser", "minecraftUser").where("minecraftUser.minecraftNickname = :minecraftNickname", { minecraftNickname }).getOne();
+  }
+
 }
