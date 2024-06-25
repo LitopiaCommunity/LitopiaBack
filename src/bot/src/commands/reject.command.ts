@@ -14,11 +14,12 @@ import {
   CandidatureProcessErrorEnum,
   CandidatureProcessException
 } from "../../../models/candidature-process/candidature-process.exception";
+import { PermissionsBitField } from "discord.js";
 
 @Command({
   name: "reject",
   description: "Commande pour refuser un candidat",
-  defaultMemberPermissions:["KickMembers","BanMembers"]
+  defaultMemberPermissions:[PermissionsBitField.Flags.KickMembers,PermissionsBitField.Flags.BanMembers]
 })
 @UsePipes(TransformPipe)
 @Injectable()
