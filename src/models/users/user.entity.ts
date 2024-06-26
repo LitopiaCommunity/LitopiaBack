@@ -66,8 +66,8 @@ export class UserEntity {
     required:true
   })
   @PrimaryColumn({
-    type: "char",
-    length: 18,
+    type: "varchar",
+    length: 32,
     unique: true,
     nullable: false
   })
