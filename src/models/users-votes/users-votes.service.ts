@@ -38,7 +38,7 @@ export class UsersVotesService {
     }
 
     // check if the user can't vote
-    if ([UserRole.CANDIDATE, UserRole.PRE_ACCEPTED,UserRole.PRETOPIEN, UserRole.BAN, UserRole.GHOST, UserRole.REFUSED].includes(userWhoVote.role)) {
+    if ([UserRole.CANDIDATE, UserRole.PRE_ACCEPTED, UserRole.BAN, UserRole.GHOST, UserRole.REFUSED].includes(userWhoVote.role)) {
       return Promise.reject(new UserVoteException(UserVoteErrorEnum.USER_HAS_NOT_THE_RIGHT_TO_VOTE));
     }
     this.logger.log(`User ${userWhoVote.discordID} vote ${voteType} for ${userWhoWasVote.discordID}`);
@@ -129,7 +129,7 @@ export class UsersVotesService {
 
     // if the user has positive ratio, we accept him
     this.logger.log(`User ${userWhoWasVote.discordID} has enough positive ratio to be accepted so we accept him`);
-    await Promise.all([this.usersService.preAcceptUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, true)]);
+    await Promise.all([this.usersService.acceptUser(userWhoWasVote), this.notifyUsers(userWhoWasVote, true)]);
     const updatedUser = await this.usersService.findOne(userWhoWasVote.discordID);
     return await this.candidatureProcessService.updateCandidatureMessage(updatedUser);
   }
@@ -191,8 +191,8 @@ export class UsersVotesService {
           role: UserRole.CANDIDATE
         }
       },
-      order:{
-        vote: "desc",
+      order: {
+        vote: "desc"
       }
     });
   }
@@ -205,7 +205,7 @@ export class UsersVotesService {
     return this.userVotesRepository.find({
       relations: ["voter"],
       where: {
-        votedForID: user.discordID,
+        votedForID: user.discordID
       },
       order: {
         vote: "asc",
@@ -253,13 +253,11 @@ export class UsersVotesService {
   private async notifyUsers(user: UserEntity, accepted: boolean) {
     await this.botUtils.sendPrivateMessage(user.discordID,
       accepted ?
-        `Félicitation, les Litopien on voté pour t'accepter sur le serveur Litopia ! 
-Cependant le processus de candidature n'est pas encore fini tu doit passer un entretient avec les Litodieux. 
-Nous allons te contacter pochainement pour passer ton entretient vocal` :
-`Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
+        `🎉 Félicitations, les Litopiens ont voté pour t'accepter sur le serveur Litopia ! Les modérateurs t'ajouteront à la whitelist dans les plus brefs délais.` :
+        `😔 Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
     );
     await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID,
-      `Vous avez ${accepted ? 'accepté' : 'refusé'} <@${user.discordID}> ${accepted ? " ! Il doit maintenant passer un entretient avec les modérateurs" : ". Dommage !"}`
+      `Vous avez ${accepted ? "accepté" : "refusé"} <@${user.discordID}> ${accepted ? " ! 🎊 Ielle va bientôt pouvoir rejoindre le serveur !" : ". Dommage ! 😢"}`
     );
   }
 }

@@ -65,25 +65,13 @@ export class UsersService {
   async refuseUser(userWhoWasVote: UserEntity) {
     return this.updateRole(userWhoWasVote, UserRole.REFUSED);
   }
-
-  /**
-   * PreAccept a user and update his role
-   * @param userWhoWasVote
-   */
-  async preAcceptUser(userWhoWasVote: UserEntity) {
-    if (userWhoWasVote.role !== UserRole.CANDIDATE) {
-      throw new Error("User is not a candidate");
-    }
-    return this.updateRole(userWhoWasVote, UserRole.PRE_ACCEPTED);
-  }
-
   /**
    * Accept a user and update his role
    * @param userWhoWasVote
    */
   async acceptUser(userWhoWasVote: UserEntity) {
-    if (userWhoWasVote.role !== UserRole.PRE_ACCEPTED) {
-      throw new Error("User is not pre accepted");
+    if (userWhoWasVote.role !== UserRole.CANDIDATE) {
+      throw new Error("User is not pre candidate");
     }
     await this.update(userWhoWasVote.discordID, { candidatureAcceptedAt: new Date() });
     return await this.updateRole(userWhoWasVote, UserRole.PRETOPIEN);
