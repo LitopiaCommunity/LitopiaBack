@@ -9,10 +9,10 @@ export enum VoteType {
 
 @Entity()
 export class UserVoteEntity {
-  @PrimaryColumn({type:"character varying",length:18})
+  @PrimaryColumn({type:"character varying",length:32})
   voterID: string;
 
-  @PrimaryColumn({type:"character varying",length:18})
+  @PrimaryColumn({type:"character varying",length:32})
   votedForID: string;
 
   /**
