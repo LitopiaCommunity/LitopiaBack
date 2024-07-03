@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { UserEntity } from "../users/user.entity";
 import { IsUUID } from 'class-validator';
@@ -19,7 +19,6 @@ export class MinecraftUserEntity {
   minecraftUUID: string;
 
   @OneToOne(() => UserEntity)
-  @JoinColumn()
   user:UserEntity;
 
   @ApiProperty()
