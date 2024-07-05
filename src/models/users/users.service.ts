@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { UserEntity, UserRole } from "./user.entity";
 import { DeepPartial, In, Repository, UpdateResult } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -18,6 +18,8 @@ export class UsersService {
   private DISCORD_ROLE_REFUSED = this.configService.get<string>("DISCORD_ROLE_REFUSED");
   private DISCORD_ROLE_LITOGOD = this.configService.get<string>("DISCORD_ROLE_LITOGOD");
   private DISCORD_ROLE_UNIQUE_GOD = this.configService.get<string>("DISCORD_ROLE_UNIQUE_GOD");
+
+  private readonly logger = new Logger(UsersService.name);
 
   constructor(
     @InjectRepository(UserEntity)
@@ -186,6 +188,7 @@ export class UsersService {
       .leftJoinAndSelect("user.minecraftUser", "minecraftUser")
       .where("minecraftUser.minecraftUUID = :uuid", { uuid }).getOne();
     if (!user) {
+      this.logger.warn(`User not found with uuid: ${uuid}`);
       throw new NotFoundException('User not found');
     }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Query, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, Put, Query, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserEntity, UserRole } from "./user.entity";
@@ -8,6 +8,7 @@ import { ConfigService } from "@nestjs/config";
 @Controller('api/users')
 export class UsersController {
   private readonly API_LOCAL_KEY = this.configService.get<string>('API_LOCAL_KEY');
+  private readonly logger = new Logger(UsersController.name);
 
   constructor(private usersService:UsersService,private configService:ConfigService) {
   }
@@ -69,6 +70,7 @@ export class UsersController {
     @Body() { apiKey }: { apiKey:string },
   ): Promise<UserEntity> {
     if (apiKey !== this.API_LOCAL_KEY) {
+      this.logger.warn(`Invalid API Key: ${apiKey}`);
       throw new UnauthorizedException('Invalid API Key');
     }
 
