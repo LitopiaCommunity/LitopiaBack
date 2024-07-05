@@ -45,6 +45,10 @@ jobs:
             echo DISCORD_ROLE_REFUSED=${{ secrets.DISCORD_ROLE_REFUSED }} >> .env
             echo DISCORD_ROLE_LITOGOD=${{ secrets.DISCORD_ROLE_LITOGOD }} >> .env
             echo DISCORD_ROLE_UNIQUE_GOD=${{ secrets.DISCORD_ROLE_UNIQUE_GOD }} >> .env
+            echo AMP_HOST=${{ secrets.AMP_HOST }} >> .env
+            echo AMP_INSTANCE=${{ secrets.AMP_INSTANCE }} >> .env
+            echo AMP_LOGIN=${{ secrets.AMP_LOGIN }} >> .env
+            echo AMP_PASS=${{ secrets.AMP_PASS }} >> .env
             echo "Pulling latest changes..."
             git pull
             echo "Installing dependencies..."

@@ -8,6 +8,7 @@ import { UsersService } from "../users/users.service";
 import { BotUtilityService } from "../../bot/utils/bot-utility.service";
 import { ConfigService } from "@nestjs/config";
 import { CandidatureProcessService } from "../candidature-process/candidature-process.service";
+import { AmpApiService } from "../../api/amp-api/amp-api.service";
 
 @Injectable()
 export class UsersVotesService {
@@ -22,7 +23,9 @@ export class UsersVotesService {
     private botUtils: BotUtilityService,
     @Inject(forwardRef(() => CandidatureProcessService)) // we use forwardRef to avoid circular dependency
     private candidatureProcessService: CandidatureProcessService,
-    private configService: ConfigService) {
+    private configService: ConfigService,
+    private ampApiService: AmpApiService
+  ) {
   }
 
   /**
@@ -89,7 +92,7 @@ export class UsersVotesService {
 
       // if enough vote, we check inform litopien that this user as enough vote,
       // and we launch the acceptance process with a delay of 5 minutes
-      await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Ielle candidat <@${user.discordID}> a reçu ${numberOfVotes} votes, il vous reste donc 5 minutes pour voter ou changer d'avis !`);
+      await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Iel candidat <@${user.discordID}> a reçu ${numberOfVotes} votes, il vous reste donc 5 minutes pour voter ou changer d'avis !`);
       setTimeout(() => this.userAcceptationProcess(user), 1000 * 60 * 5);
       this.logger.log(`User ${user.discordID} has enough votes (${numberOfVotes}) to be processed. We launch the process in 5 minutes`);
     }
@@ -251,13 +254,14 @@ export class UsersVotesService {
    * @param accepted true if the user has been accepted, false if not
    */
   private async notifyUsers(user: UserEntity, accepted: boolean) {
+    await this.ampApiService.addPlayerToWhitelist(user.minecraftUser.minecraftNickname)
     await this.botUtils.sendPrivateMessage(user.discordID,
       accepted ?
-        `🎉 Félicitations, les Litopiens ont voté pour t'accepter sur le serveur Litopia ! Les modérateurs t'ajouteront à la whitelist dans les plus brefs délais.` :
+        `🎉 Félicitations, les Litopiens ont voté pour t'accepter sur le serveur Litopia ! Tu peux rejoindre le serveur sur  \`play.litopia.fr\`.` :
         `😔 Malheureusement, tu n'as pas été accepté sur le serveur Litopia.`
     );
     await this.botUtils.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID,
-      `Vous avez ${accepted ? "accepté" : "refusé"} <@${user.discordID}> ${accepted ? " ! 🎊 Ielle va bientôt pouvoir rejoindre le serveur !" : ". Dommage ! 😢"}`
+      `Vous avez ${accepted ? "accepté" : "refusé"} <@${user.discordID}> ${accepted ? " ! 🎊 Iel va bientôt pouvoir rejoindre le serveur !" : ". Dommage ! 😢"}`
     );
   }
 }

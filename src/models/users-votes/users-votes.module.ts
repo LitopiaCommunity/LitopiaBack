@@ -6,6 +6,7 @@ import { UsersModule } from "../users/users.module";
 import { ConfigModule } from "@nestjs/config";
 import { CandidatureProcessModule } from "../candidature-process/candidature-process.module";
 import { BotFunctionModule } from "../../bot/utils/bot.function.module";
+import { AmpApiModule } from "../../api/amp-api/amp-api.module";
 
 @Module({
   imports:[
@@ -13,7 +14,8 @@ import { BotFunctionModule } from "../../bot/utils/bot.function.module";
     UsersModule,
     BotFunctionModule,
     forwardRef(()=>CandidatureProcessModule), // we use forwardRef to avoid circular dependency
-    ConfigModule
+    ConfigModule,
+    AmpApiModule
   ],
   providers: [UsersVotesService],
   exports:[UsersVotesService]
