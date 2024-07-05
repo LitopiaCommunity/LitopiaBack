@@ -78,8 +78,8 @@ export class CandidatureProcessService {
     };
 
     this.sendMessageToUser(newUser.discordID)
-      .then(()=>this.logger.log("Confirmation candidature message send to "+newUser.discordNickname))
-      .catch(e=>this.logger.error("Error while trying to send confirmation "+newUser.discordNickname+" with error :"+e));
+      .then(() => this.logger.log("Confirmation candidature message send to " + newUser.discordNickname))
+      .catch(e => this.logger.error("Error while trying to send confirmation " + newUser.discordNickname + " with error :" + e));
 
     const createdUser = await this.userService.create(newUser);
 
@@ -124,14 +124,19 @@ export class CandidatureProcessService {
 
   /**
    * Register Emoji reaction for candidature
-   * @Param message The message of the candidature
+   * @Param messageID The message of the candidature
    * @Param user The user who have a candidature
    */
   async registerEmojiReactionCalback(messageID: string, user: UserEntity) {
     this.logger.log("Register emoji reaction for " + user.discordNickname);
-    const message = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, messageID);
-    for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
-      await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
+    try {
+      const message = await this.botUtilityService.getMessagesFromId(this.DISCORD_CANDIDATURE_CHANNEL_ID, messageID);
+      for (const emoji of CandidatureProcessService.VOTE_EMOJI) {
+        await this.botUtilityService.listenForReaction(message, emoji, this.candidatureVoteCallback(user, message));
+      }
+    } catch (e) {
+      this.logger.error(e);
+      this.logger.error(`Error listening for reaction on message ${messageID}`);
     }
   }
 
@@ -222,8 +227,8 @@ export class CandidatureProcessService {
           this.updateCandidatureMessage(userWhoIsCandidat),
           this.botUtilityService.sendPrivateMessage(userWhoVote.discordID, `Ton vote ${voteType === VoteType.FOR ? "👍" : voteType === VoteType.AGAINST ? "👎" : "🤷"}a bien était pris en compte pour ${candidat.minecraftUser.minecraftNickname}`),
           this.removeOtherUserReactionFromMessage(message, user, emoji.emoji.name),
-          this.userService.update(userWhoVote.discordID, { discordNickname:user.username,discordAvatar:user.avatar })
-          ]);
+          this.userService.update(userWhoVote.discordID, { discordNickname: user.username, discordAvatar: user.avatar })
+        ]);
         this.logger.log(`Vote ${voteType} for ${userWhoIsCandidat.discordNickname} by ${userWhoVote.discordNickname}`);
       } catch (e) {
         // In all case remove the reaction of the user
@@ -307,10 +312,10 @@ export class CandidatureProcessService {
     await Promise.all([
       this.userService.acceptUser(userWhoIsAccepted),
       this.botUtilityService.sendPrivateMessage(userWhoIsAccepted.discordID, `Félicitation tu es maintenant accepté sur le serveur de Litopia !`),
-      this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Félicitation à ${userWhoIsAccepted.minecraftUser.minecraftNickname} qui est maintenant accepté sur le serveur de Litopia !`),
+      this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `Félicitation à ${userWhoIsAccepted.minecraftUser.minecraftNickname} qui est maintenant accepté sur le serveur de Litopia !`)
     ]);
     const updatedUser = await this.userService.findOne(userWhoIsAccepted.discordID);
-    await this.updateCandidatureMessage(updatedUser)
+    await this.updateCandidatureMessage(updatedUser);
     this.logger.log(`User ${userWhoIsAccepted.discordNickname} accepted by ${userWhoPerformAction.discordNickname}`);
   }
 
@@ -329,10 +334,10 @@ export class CandidatureProcessService {
     await Promise.all([
       this.userService.rejectUser(userToReject),
       this.botUtilityService.sendPrivateMessage(userToReject.discordID, `Désolé mais tu as été refusé sur le serveur de Litopia !`),
-      this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `${userToReject.minecraftUser.minecraftNickname} a été refusé. Il ne pourra pas rejoindre le serveur de Litopia !`),
+      this.botUtilityService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `${userToReject.minecraftUser.minecraftNickname} a été refusé. Il ne pourra pas rejoindre le serveur de Litopia !`)
     ]);
     const updatedUser = await this.userService.findOne(userToReject.discordID);
-    await this.updateCandidatureMessage(updatedUser)
+    await this.updateCandidatureMessage(updatedUser);
     this.logger.log(`User ${userToReject.discordNickname} rejected by ${userThatPerformAction.discordNickname}`);
   }
 }

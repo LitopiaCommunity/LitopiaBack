@@ -142,7 +142,7 @@ export class UserEntity {
   candidatureAcceptedAt:Date;
 
   @ApiProperty()
-  @Column('date', { default: () => '(CURRENT_DATE)' , nullable:false})
+  @Column('timestamp', { default: () => '(CURRENT_DATE)' , nullable:false})
   lastActivity: Date;
 
   @CreateDateColumn()
@@ -150,4 +150,10 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({nullable:true,type:"int"})
+  discordNumberOfInteractions:number;
+
+  @Column({nullable:true,type:"int"})
+  discordVoiceTime: number; // in seconds
 }

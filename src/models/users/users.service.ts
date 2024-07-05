@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { UserEntity, UserRole } from "./user.entity";
 import { DeepPartial, In, Repository, UpdateResult } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -177,6 +177,20 @@ export class UsersService {
   async getUserByNickname(minecraftNickname: string): Promise<UserEntity> {
     // le wehere se trouve dans munecraftUser.minecrafPseudo car c'est le nom de la colonne dans la table minecraftUser
     return await this.usersRepository.createQueryBuilder("user").leftJoinAndSelect("user.minecraftUser", "minecraftUser").where("minecraftUser.minecraftNickname = :minecraftNickname", { minecraftNickname }).getOne();
+  }
+
+
+  async updateLastUpdate(uuid: string): Promise<UserEntity> {
+    const user = await this.usersRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.minecraftUser", "minecraftUser")
+      .where("minecraftUser.minecraftUUID = :uuid", { uuid }).getOne();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.lastActivity = new Date();
+    return this.usersRepository.save(user);
   }
 
 }

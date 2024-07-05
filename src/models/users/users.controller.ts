@@ -1,13 +1,15 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Put, Query, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserEntity, UserRole } from "./user.entity";
+import { ConfigService } from "@nestjs/config";
 
 @ApiTags('users')
 @Controller('api/users')
 export class UsersController {
+  private readonly API_LOCAL_KEY = this.configService.get<string>('API_LOCAL_KEY');
 
-  constructor(private usersService:UsersService) {
+  constructor(private usersService:UsersService,private configService:ConfigService) {
   }
 
   @Get()
@@ -52,5 +54,24 @@ export class UsersController {
   })
   async getUserByNickname(@Query()minecraftPseudo:{nickname:string}): Promise<UserEntity>{
     return this.usersService.getUserByNickname(minecraftPseudo.nickname)
+  }
+
+  @Put(':uuid/last-update')
+  @ApiParam({ name: 'uuid', required: true })
+  @ApiBody({ description: 'API Key', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'User last update timestamp has been updated',
+    type: UserEntity,
+  })
+  async updateLastUpdate(
+    @Param('uuid') uuid: string,
+    @Body() { apiKey }: { apiKey:string },
+  ): Promise<UserEntity> {
+    if (apiKey !== this.API_LOCAL_KEY) {
+      throw new UnauthorizedException('Invalid API Key');
+    }
+
+    return this.usersService.updateLastUpdate(uuid);
   }
 }
