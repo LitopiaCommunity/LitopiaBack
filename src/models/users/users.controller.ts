@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Put, Query, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, Post, Query, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserEntity, UserRole } from "./user.entity";
@@ -57,7 +57,7 @@ export class UsersController {
     return this.usersService.getUserByNickname(minecraftPseudo.nickname)
   }
 
-  @Put(':uuid/last-update')
+  @Post(':uuid/last-update')
   @ApiParam({ name: 'uuid', required: true })
   @ApiBody({ description: 'API Key', required: true })
   @ApiResponse({
