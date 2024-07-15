@@ -25,7 +25,7 @@ export class SchedulerService {
       const lastUpdate = moment(user.updatedAt)
       //We can pass pretopien to litopien if member has been active in the last 7 day
       //and is in the server for more than 1 month
-      if (moment().diff(acceptedAt,'months')>3 && moment().diff(lastUpdate,'days')<7){
+      if (moment().diff(acceptedAt,'months')>2 && moment().diff(lastUpdate,'days')<7){
         await this.userService.updateRole(user,UserRole.LITOPIEN);
         this.logger.log(user.discordNickname+" is now a real Litopien");
       }

@@ -18,6 +18,7 @@ export class UsersService {
   private DISCORD_ROLE_REFUSED = this.configService.get<string>("DISCORD_ROLE_REFUSED");
   private DISCORD_ROLE_LITOGOD = this.configService.get<string>("DISCORD_ROLE_LITOGOD");
   private DISCORD_ROLE_UNIQUE_GOD = this.configService.get<string>("DISCORD_ROLE_UNIQUE_GOD");
+  private DISCORD_CANDIDATURE_CHANNEL_ID = this.configService.get<string>("DISCORD_CANDIDATURE_CHANNEL_ID");
 
   private readonly logger = new Logger(UsersService.name);
 
@@ -96,6 +97,7 @@ export class UsersService {
    * @param role
    */
   async updateRole(user: UserEntity, role: UserRole) {
+    const previousRole = user.role;
     await this.update(user.discordID, { role: role });
     await this.botService.addRole(user.discordID, this.DISCORD_GUILD_ID, this.getDiscordRole(role));
     switch (role) {
@@ -110,6 +112,10 @@ export class UsersService {
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_CANDIDATE);
         break;
       case UserRole.LITOPIEN:
+        if (previousRole === UserRole.PRETOPIEN) {
+          await this.botService.sendPrivateMessage(user.discordID, "🎉 Félicitations, tu es maintenant Litopien ! 🎉 Tu peux désormais voter pour les candidats 🗳️.");
+          await this.botService.sendMessageToChannel(this.DISCORD_CANDIDATURE_CHANNEL_ID, `🎊 Félicitations à ${user.discordNickname} qui devient Litopien ! 🎊`);
+        }
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_PRETOPIEN);
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_INACTIVE_LITOPIEN);
         await this.botService.removeRole(user.discordID, this.DISCORD_GUILD_ID, this.DISCORD_ROLE_ACTIVE_LITOPIEN);
